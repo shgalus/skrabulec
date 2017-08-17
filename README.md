@@ -17,7 +17,7 @@ The program is in pre-alpha stage of development.
 Current version number can be found in [src/main.js](src/main.js).
 
 A working copy can be found
-[here](https://shgalus.github.io/skrabulec-0.1/skrabulec.html).
+[here](https://shgalus.github.io/skrabulec-0.11/skrabulec.html).
 
 Development environment is Debian GNU/Linux with Ruby 2.1, [jshint
 2.9.4](http://jshint.com/) under Node.js 0.10.29 and Mozilla Firefox
