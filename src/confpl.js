@@ -1,4 +1,4 @@
-SKRABULEC.confpl = (function() {
+SKRABULEC.conf.pl = (function() {
   "use strict";
   var
   configMap = {
@@ -50,10 +50,12 @@ SKRABULEC.confpl = (function() {
       dialog_title:        "Informacja",
       repl_blank_title:    "Zastępowanie mydła.",
       repl_blank_tile_command: "Proszę kliknąć literę, " +
-        "którą ma zatępować mydło.",
+        "którą ma zastępować mydło.",
       exchange_tiles_title: "Wymiana płytek.",
       exchange_tiles_command: "Proszę przeciągnąć na dolny stojak " +
         "płytki, które mają być wymienione.",
+      word_list_pause:     "PAUZA",
+      word_list_exchange:  "WYMIANA",
 
       // Right panel, points.
       plr_points:          "Punkty gracza:",
@@ -63,6 +65,8 @@ SKRABULEC.confpl = (function() {
       last_words:          "Ostatnie słowa:",
 
       // Dialogs.
+      dialog_error_title:  "Błąd",
+      dialog_info_title:   "Informacja",
       dialog_close_text:   "Zamknij",
       dialog_ok_button:    "OK",
       dialog_repl_blank_button: "Przywróć mydło",
@@ -75,5 +79,3 @@ SKRABULEC.confpl = (function() {
     config_map: configMap,
   };
 }());
-
-SKRABULEC.conf = SKRABULEC.confpl.config_map;

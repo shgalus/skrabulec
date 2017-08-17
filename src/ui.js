@@ -1,7 +1,8 @@
 SKRABULEC.ui = (function() {
   "use strict";
   var
-  stringMap = SKRABULEC.conf.string_map,
+  stringMap,
+  letterMap,
   assert = SKRABULEC.utils.assert,
   configMap = {
     color_map: {
@@ -67,14 +68,14 @@ SKRABULEC.ui = (function() {
     text = text.trim();
     if (text.slice(-1) !== '.')
       text += '.';
-    modalDialog('Błąd', text);
+    modalDialog(stringMap.dialog_error_title, text);
   };
 
   infoDialog = function(text) {
     text = text.trim();
     if (text.slice(-1) !== '.')
       text += '.';
-    modalDialog('Informacja', text);
+    modalDialog(stringMap.dialog_info_title, text);
   };
 
   gameIsOverDialog = function() {
@@ -93,7 +94,9 @@ SKRABULEC.ui = (function() {
       '<sub>' + getLetterPoints(c) + '</sub></div>';
   };
 
-  initModule = function(container) {
+  initModule = function(container, conf) {
+    stringMap = conf.string_map,
+    letterMap = conf.letter_map,
     uiEngine = SKRABULEC.engine;
     var i, j, k, html, h, r, hcoord, c, cl, letters, dlgbuttons;
 
@@ -177,17 +180,21 @@ SKRABULEC.ui = (function() {
       '">' + '<p>' + stringMap.repl_blank_tile_command + '</p>' +
       '<table id="idblrepltab" class="mydlotable">' +
       '<tbody>';
-    letters = Object.keys(SKRABULEC.conf.letter_map);
-    k = 0;
-    for (i = 0; i < 4; i++) {
-      h += '<tr>';
-      for (j = 0; j < 8; j++) {
+    letters = Object.keys(letterMap);
+    j = 0;
+    for (k = 0; k < letters.length; k++)
+      if (letters[k] !== '?') {
+        if (j === 0)
+          h += '<tr>';
         h += '<td><div class="tile ntile">' +
           letters[k].toUpperCase() + '</div></td>';
-        k += 1;
+        if (++j === 8) {
+          h += '</tr>';
+          j = 0;
+        }
       }
+    if (j > 0)
       h += '</tr>';
-    }
     h += '</tbody></table></div>';
     html += h;
 
@@ -205,18 +212,18 @@ SKRABULEC.ui = (function() {
     html += h;
 
     // Right panel, letterlist.
-    var lm = SKRABULEC.conf.letter_map, td;
+    var td;
     h = '<div id="idrightpanel">';
     h += '<div id="idletterlist">';
     h += '<table class="letterlist"><tbody>';
     k = 0;
-    for (i in lm)
-      if (lm.hasOwnProperty(i)) {
+    for (i in letterMap)
+      if (letterMap.hasOwnProperty(i)) {
         td = '<td class="notplayed">';
         if (i !== "?")
           td += i.toUpperCase() +
-          '<sub>' + lm[i].npoints + '</sub>';
-        for (j = 0; j < lm[i].nitems; j++) {
+          '<sub>' + letterMap[i].npoints + '</sub>';
+        for (j = 0; j < letterMap[i].nitems; j++) {
           if (k++ % 10 === 0)
             h += '<tr>';
           h += td;
@@ -348,9 +355,9 @@ SKRABULEC.ui = (function() {
       h += uiEngine.iToc(ml[l].tiles[0].field) + " ";
       h += ml[l].words[0].toUpperCase();
     } else if (ml[l].move_kind === uiEngine.mpause) {
-      h += "&lt;PAUZA&gt;";
+      h += "&lt;" + stringMap.word_list_pause + "&gt;";
     } else if (ml[l].move_kind === uiEngine.mexchange) {
-      h += "&lt;WYMIANA&gt;";
+      h += "&lt;" + stringMap.word_list_exchange + "&gt;";
     }
     h += '<br></span>';
     $("#idwordlist").append(h);
@@ -622,6 +629,7 @@ SKRABULEC.ui = (function() {
       return;
     }
     blockInput();
+    moveActiveTilesToRack();
     move = uiEngine.makeMove(uiEngine.mpause);
     response = currentGame.register_player_move(move);
     setPoints();

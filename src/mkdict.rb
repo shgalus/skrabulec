@@ -20,7 +20,7 @@ def to_js(dawg)
     h[id[:id]] = k
     k += 1
   }
-  print 'SKRABULEC.dict.dawg = ['
+  print "SKRABULEC.dict.#{$dictname} = ["
   ts = t.size
   i = 0
   t.each {|d|
@@ -43,18 +43,28 @@ def to_js(dawg)
   puts '];'
 end
 
+$dictname = ""
 $stdin.set_encoding('utf-8')
 $lines = $stdin.readlines.map! {|w| w.chomp}
-# $lines = File.open('../lib/slowa.txt', 'r:utf-8').readlines.map! {|w|
-#  w.chomp
-#}
-$lines.delete_if {|w|
-  w.include? 'q' or w.include? 'v' or w.include? 'x'
-}
+if $lines.index {|w| w =~ /SOWPODS/}
+    $dictname = 'en'
+elsif $lines.index {|w| w =~ /TWL06/}
+  $dictname = 'us'
+elsif $lines.index {|w| w =~ /chleb/}
+  $dictname = 'pl'
+else
+  abort 'Error'
+end
+$lines.delete_if {|w| w == '' or w.include? ' '}
+if $dictname == 'pl'
+  $lines.delete_if {|w|
+    w.include? 'q' or w.include? 'v' or w.include? 'x'
+  }
+end
 $lines.uniq!
 $lines.sort!
-dawg = Dawg.new
 
+dawg = Dawg.new
 $lines.each {|w| dawg.insert w}
 dawg.finish
 

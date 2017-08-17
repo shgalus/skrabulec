@@ -1,4 +1,5 @@
 var SKRABULEC = {};
+SKRABULEC.conf = {};
 SKRABULEC.dict = {};
 
 SKRABULEC.utils = (function() {

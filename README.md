@@ -1,14 +1,16 @@
 skrabulec
-*********
+=========
 
 Skrabulec is a JavaScript implementation of the
-[SCRABBLE®](http://www.scrabble.com/) game. Current revision plays
-Polish version of the game according to the rules of the
-[Polish Scrabble Federation](http://www.pfs.org.pl/). The program uses
-algorithm published by Andrew W. Appel and Guy J. Jacobson in
-[_The World's Fastet Scrabble Program_](doc/appeljac.pdf) and a
-dictionary based on
-[Lista słów do gier](https://sjp.pl/slownik/growy/).
+[SCRABBLE®](http://www.scrabble.com/) game. The program uses algorithm
+published by Andrew W. Appel and Guy J. Jacobson in
+[_The World's Fastet Scrabble Program_](doc/appeljac.pdf). Current
+revision plays English, Polish and American versions of the game,
+using dictionaries based respectively on
+[_Collins Scrabble Words_](https://en.wikipedia.org/wiki/Collins_Scrabble_Words)
+list, [_Lista słów do gier_](https://sjp.pl/slownik/growy/) and
+[_Official Tournament and Club Word List_](https://en.wikipedia.org/wiki/Official_Tournament_and_Club_Word_List).
+
 
 The program is in pre-alpha stage of development.
 
@@ -28,9 +30,6 @@ and generates the dictionary source files. Then
 Say `make dist` to prepare distribution file skrabulec-version.tar.gz.
 
 See the file [LICENSE](LICENSE) for licensing information.
-
-Credits
-*******
 
 Thanks for [Amnon David](https://github.com/amnond) for user interface
 inspirations from his [jscrab](https://github.com/amnond/jscrab)

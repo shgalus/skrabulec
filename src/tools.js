@@ -7,9 +7,10 @@ SKRABULEC.engine = (function(engine) {
       asc0 = "0".charCodeAt(0),
       asca1 = "A".charCodeAt(0) - 1;
 
-  engine.initModule = function(config) {
+  engine.initModule = function(config, dict) {
     engine.letterMap = config.letter_map;
     engine.string_map = config.string_map;
+    engine.dawg = dict;
   };
 
   engine.nrows =       15;
@@ -310,27 +311,27 @@ SKRABULEC.engine = (function(engine) {
   // Returns true if the word is found in the dictionary or false
   // otherwise.
   engine.wordInDict = function(word) {
-    var node = SKRABULEC.dict.dawg[0],
+    var node = this.dawg[0],
         wl = word.length,
         next_node, i;
     for (i = 0; i < wl; i++) {
       next_node = node[word.charAt(i)];
       if (next_node === undefined)
         return false;
-      node = SKRABULEC.dict.dawg[next_node];
+      node = this.dawg[next_node];
     }
     return node[0] ? true : false;
   };
 
   engine.query_prefix = function(prefix) {
-    var node = SKRABULEC.dict.dawg[0],
+    var node = this.dawg[0],
         pl = prefix.length,
         next_node, i;
     for (i = 0; i < pl; i++) {
       next_node = node[prefix.charAt(i)];
       if (next_node === undefined)
         return null;
-      node = SKRABULEC.dict.dawg[next_node];
+      node = this.dawg[next_node];
     }
     return node;
   };
@@ -342,7 +343,7 @@ SKRABULEC.engine = (function(engine) {
       next_node = node[postfix.charAt(i)];
       if (next_node === undefined)
         return false;
-      node = SKRABULEC.dict.dawg[next_node];
+      node = this.dawg[next_node];
     }
     return node[0] ? true : false;
   };

@@ -19,3 +19,11 @@ This directory contains the following files:
 * sjp-20170729.zip — GPL-licensed list of Polish words from
   [SJP](https://sjp.pl/slownik/growy/). As I observed, two previous
   versions were 20170608.zip, sjp-20170416.zip.
+* sowpods.txt.gz — gzipped
+[Collins Scrabble Words](https://en.wikipedia.org/wiki/Collins_Scrabble_Words)
+list, downloaded in August 2017 from
+[https://www.wordgamedictionary.com/sowpods/download/sowpods.txt](https://www.wordgamedictionary.com/sowpods/download/sowpods.txt)
+* twl06.txt.gz — gzipped
+[Official Tournament and Club Word List](https://en.wikipedia.org/wiki/Official_Tournament_and_Club_Word_List),
+downloaded in August 2017 from
+[https://www.wordgamedictionary.com/twl06/download/twl06.txt](https://www.wordgamedictionary.com/twl06/download/twl06.txt)

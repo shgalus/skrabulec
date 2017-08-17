@@ -215,7 +215,7 @@ SKRABULEC.engine = (function(engine) {
             rack = rack.replace(letter, "");
             sf -= d;
             LeftPart(PartialWord + letter,
-                     SKRABULEC.dict.dawg[N[letter]],
+                     engine.dawg[N[letter]],
                      limit - 1);
             rack += letter;
             sf += d;
@@ -244,7 +244,7 @@ SKRABULEC.engine = (function(engine) {
               letter_in_cross_check_set(letter, field)) {
             rack = rack.replace(letter, "");
             ExtendRight(PartialWord + letter,
-                        SKRABULEC.dict.dawg[N[letter]],
+                        engine.dawg[N[letter]],
                         field + d);
             rack += letter;
           }
@@ -253,7 +253,7 @@ SKRABULEC.engine = (function(engine) {
         letter = board[field];
         if (N[letter] !== undefined)
           ExtendRight(PartialWord + letter,
-                      SKRABULEC.dict.dawg[N[letter]],
+                      engine.dawg[N[letter]],
                       field + d);
       }
     }
