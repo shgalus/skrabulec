@@ -1,4 +1,6 @@
-SKRABULEC.engine = (function(engine) {
+SKRABULEC.engine = SKRABULEC.engine || {};
+
+SKRABULEC.engine.prototype = (function(prototype) {
   "use strict";
 
   var assert = SKRABULEC.utils.assert,
@@ -7,19 +9,13 @@ SKRABULEC.engine = (function(engine) {
       asc0 = "0".charCodeAt(0),
       asca1 = "A".charCodeAt(0) - 1;
 
-  engine.initModule = function(config, dict) {
-    engine.letterMap = config.letter_map;
-    engine.string_map = config.string_map;
-    engine.dawg = dict;
-  };
-
-  engine.nrows =       15;
-  engine.ncols =       15;
-  engine.ncols2 =      engine.ncols + 2;
-  engine.center =      144;
-  engine.outer_field = "\u0000"; // String.fromCharCode(0)
-  engine.empty_field = " ";
-  engine.scores = String()
+  prototype.nrows =       15;
+  prototype.ncols =       15;
+  prototype.ncols2 =      prototype.ncols + 2;
+  prototype.center =      144;
+  prototype.outer_field = "\u0000"; // String.fromCharCode(0)
+  prototype.empty_field = " ";
+  prototype.scores = String()
     + "W  l   W   l  W"
     + " w   L   L   w "
     + "  w   l l   w  "
@@ -36,16 +32,16 @@ SKRABULEC.engine = (function(engine) {
     + " w   L   L   w "
     + "W  l   W   l  W";
   // Kinds of moves.
-  engine.mnormal =      0;
-  engine.mpause =       1;
-  engine.mexchange =    2;
-  engine.mresignation = 3;
-  
+  prototype.mnormal =      0;
+  prototype.mpause =       1;
+  prototype.mexchange =    2;
+  prototype.mresignation = 3;
+
   // Kinds of end of game.
-  engine.eognormal =    0;
-  engine.eogpauses =    1;
-  engine.eogresignation =  2;
-  
+  prototype.eognormal =    0;
+  prototype.eogpauses =    1;
+  prototype.eogresignation =  2;
+
   //
   // Board for nrows = 3, ncols = 4 (ncols2 = ncols + 2).
   //
@@ -80,7 +76,7 @@ SKRABULEC.engine = (function(engine) {
 
   // Converts integer coordinates to normal coordinates, eg. iToc(144)
   // === "H8".
-  engine.iToc = function(n) {
+  prototype.iToc = function(n) {
     var r, c;
     assert(Number.isInteger(n));
     assert(n >= this.ncols2);
@@ -98,7 +94,7 @@ SKRABULEC.engine = (function(engine) {
 
   // Converts normal coordinates to integer coordinates, eg.
   // cToi("H8") === 144. On error returns undefined.
-  engine.cToi = function(s) {
+  prototype.cToi = function(s) {
     var r, c, d;
     if (typeof s !== "string" ||
         (s.length !== 2 && s.length !== 3))
@@ -120,7 +116,7 @@ SKRABULEC.engine = (function(engine) {
     return r * this.ncols2 + c;
   };
 
-  engine.initBoard = function() {
+  prototype.initBoard = function() {
     var
     nr1 = this.nrows + 1,
     nr2 = this.nrows + 2,
@@ -145,7 +141,7 @@ SKRABULEC.engine = (function(engine) {
     return b;
   };
 
-  engine.initScores = function() {
+  prototype.initScores = function() {
     var nr1 = this.nrows + 1,
         nr2 = this.nrows + 2,
         nc1 = this.ncols + 1,
@@ -169,7 +165,7 @@ SKRABULEC.engine = (function(engine) {
     return b;
   };
 
-  engine.scoreBoard = engine.initScores();
+  prototype.scoreBoard = prototype.initScores();
 
   bagPrototype.shuffle = function() {
     // Knuth, vol. 2, section 3.4.2, algorithm P.
@@ -211,16 +207,16 @@ SKRABULEC.engine = (function(engine) {
       this.b.push(s.charAt(i));
     return t;
   };
-  
+
   bagPrototype.size = function() {
     return this.b.length;
   };
-  
+
   bagPrototype.show = function() {
     console.log(this.b);
   };
 
-  engine.makeBag = function() {
+  prototype.makeBag = function() {
     var i, j,
         b = Object.create(bagPrototype);
     b.b = [];
@@ -251,12 +247,12 @@ SKRABULEC.engine = (function(engine) {
         return false;
     return true;
   };
-  
+
   movePrototype.length = function() {
     return this.tiles.length;
   };
 
-  engine.makeMove = function(kind) {
+  prototype.makeMove = function(kind) {
     var move = Object.create(movePrototype);
     move.kind = kind;
     if (kind === this.mnormal)
@@ -265,15 +261,15 @@ SKRABULEC.engine = (function(engine) {
       move.tiles = String();
     return move;
   };
-  
-  engine.makeState = function(rack, move_kind) {
+
+  prototype.makeState = function(rack, move_kind) {
     var state = {};
     state.rack = rack.slice(0);
     state.move_kind = move_kind;
     return state;
   };
 
-  engine.supplementRack = function(rack, move, bag) {
+  prototype.supplementRack = function(rack, move, bag) {
     var i, c;
     for (i = 0; i < move.length; i++) {
       c = move[i].isblank ? "?" : move[i].letter;
@@ -286,7 +282,7 @@ SKRABULEC.engine = (function(engine) {
     };
   };
 
-  engine.printBoard = function(b) {
+  prototype.printBoard = function(b) {
     var i, j,
         k = 0,
         nr2 = this.nrows + 2,
@@ -310,7 +306,7 @@ SKRABULEC.engine = (function(engine) {
 
   // Returns true if the word is found in the dictionary or false
   // otherwise.
-  engine.wordInDict = function(word) {
+  prototype.wordInDict = function(word) {
     var node = this.dawg[0],
         wl = word.length,
         next_node, i;
@@ -323,7 +319,7 @@ SKRABULEC.engine = (function(engine) {
     return node[0] ? true : false;
   };
 
-  engine.query_prefix = function(prefix) {
+  prototype.query_prefix = function(prefix) {
     var node = this.dawg[0],
         pl = prefix.length,
         next_node, i;
@@ -336,7 +332,7 @@ SKRABULEC.engine = (function(engine) {
     return node;
   };
 
-  engine.query_postfix = function(node, postfix) {
+  prototype.query_postfix = function(node, postfix) {
     var pl = postfix.length,
         next_node, i;
     for (i = 0; i < pl; i++) {
@@ -355,7 +351,7 @@ SKRABULEC.engine = (function(engine) {
   // c appears twice on the list.
   //
   // TODO: https://stackoverflow.com/questions/19676109.
-  engine.arrange_letters = function(letters) {
+  prototype.arrange_letters = function(letters) {
     var
     n = letters.length,
     low = [],
@@ -388,7 +384,7 @@ SKRABULEC.engine = (function(engine) {
   // Returns notation of normal move like this: "K(O)nIE 8H". See
   // https://en.wikibooks.org/wiki/Scrabble/Rules#Notation. The board
   // and move must be previously validated.
-  engine.getNotation = function(board, move) {
+  prototype.getNotation = function(board, move) {
     var mll = move.length,
         mw = String(),
         that = this,
@@ -447,5 +443,5 @@ SKRABULEC.engine = (function(engine) {
     return mw;
   };
 
-  return engine;
-}(SKRABULEC.engine || {}));
+  return prototype;
+}(SKRABULEC.engine.prototype || {}));

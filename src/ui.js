@@ -27,7 +27,6 @@ SKRABULEC.ui = (function() {
 
   getLetterPoints,
   tileDiv,
-  initModule,
   moveActiveTilesToRack,
   addToWordList,
   markLettersAsPlayed,
@@ -94,11 +93,13 @@ SKRABULEC.ui = (function() {
       '<sub>' + getLetterPoints(c) + '</sub></div>';
   };
 
-  initModule = function(container, conf) {
-    stringMap = conf.string_map,
-    letterMap = conf.letter_map,
-    uiEngine = SKRABULEC.engine;
+  startGame = function(container, conf, dict) {
     var i, j, k, html, h, r, hcoord, c, cl, letters, dlgbuttons;
+
+    stringMap = conf.string_map;
+    letterMap = conf.letter_map;
+    currentGame = SKRABULEC.game.make_game(conf, dict);
+    uiEngine = currentGame.engine;
 
     html = '<div id="idleftpanel">';
     html += '<table id="idgame" class="game"><tbody>';
@@ -320,6 +321,11 @@ SKRABULEC.ui = (function() {
       buttons : dlgbuttons
     });
     blockedInput = true;
+
+    oppRackVisible = false;
+    putPlayerRack(currentGame.player_rack);
+    $("#idnotb").text(currentGame.bag.size());
+    blockedInput = false;
   };
 
   // If there are active tiles left on the board, move them back to
@@ -876,16 +882,7 @@ SKRABULEC.ui = (function() {
     d.animate({scrollTop: d.prop("scrollHeight")}, 1000);
   };
 
-  startGame = function() {
-    currentGame = uiEngine.make_game();
-    oppRackVisible = false;
-    putPlayerRack(currentGame.player_rack);
-    $("#idnotb").text(currentGame.bag.size());
-    blockedInput = false;
-  };
-
   return {
-    initModule: initModule,
     startGame: startGame
   };
 }());

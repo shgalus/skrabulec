@@ -1,4 +1,4 @@
-SKRABULEC.engine = (function(engine) {
+SKRABULEC.engine.prototype = (function(prototype) {
   "use strict";
 
   // Explanation of anchors and cross-checks.
@@ -39,19 +39,19 @@ SKRABULEC.engine = (function(engine) {
   boardEmpty = function(board) {
     var i;
     for (i = 0; i < board.length; i++)
-      if (board[i] > engine.empty_field)
+      if (board[i] > prototype.empty_field)
         return false;
     return true;
   };
 
-  engine.calculate_simple_points = function(word) {
+  prototype.calculate_simple_points = function(word) {
     var i, s = 0;
     for (i = 0; i < word.length; i++)
       s += this.letterMap[word.charAt(i)].npoints;
     return s;
   };
 
-  engine.generate_first_move = function(board, rack) {
+  prototype.generate_first_move = function(board, rack) {
     var i, low, state, mv, cw, k, np, maxp;
     low = this.arrange_letters(rack);
     if (low.length === 0) {
@@ -94,45 +94,46 @@ SKRABULEC.engine = (function(engine) {
   //
   // The same is about vc[i].
   //
-  engine.generate_crosschecks_from_scratch = function(board) {
-    var hc = [],
+  prototype.generate_crosschecks_from_scratch = function(board) {
+    var that = this,
+        hc = [],
         vc = [],
         k;
 
     // Generates cross-checks for empty field on the board. For d =
-    // engine.ncols2 generates horizontal cross-checks, for d = 1
+    // prototype.ncols2 generates horizontal cross-checks, for d = 1
     // generates vertical cross-checks.
     function generate(d) {
       var t = [],
           prefix, suffix, node0, i;
       prefix = "";
       i = k;
-      while (board[i - d] > engine.empty_field)
+      while (board[i - d] > that.empty_field)
         prefix = board[i -= d] + prefix;
       suffix = "";
       i = k;
-      while (board[i + d] > engine.empty_field)
+      while (board[i + d] > that.empty_field)
         suffix += board[i += d];
       if (prefix.length === 0 && suffix.length === 0)
         t = alphabet.slice();
       else {
-        node0 = engine.query_prefix(prefix);
+        node0 = that.query_prefix(prefix);
         if (node0 !== null)
           for (i = 0; i < alphabet.length; i++)
-            if (engine.query_postfix(node0, alphabet[i] + suffix))
+            if (that.query_postfix(node0, alphabet[i] + suffix))
               t.push(alphabet[i]);
       }
       return t;
     }
 
     for (k = 0; k < board.length; k++) {
-      if (board[k] === engine.outer_field ||
-          board[k] > engine.empty_field) {
+      if (board[k] === this.outer_field ||
+          board[k] > this.empty_field) {
         hc.push([]);
         vc.push([]);
         continue;
       }
-      hc.push(generate(engine.ncols2));
+      hc.push(generate(this.ncols2));
       vc.push(generate(1));
     }
     return {
@@ -146,10 +147,10 @@ SKRABULEC.engine = (function(engine) {
   // field - start field,
   // word - word to arrange
   // letters - letters remaining on rack
-  // d - direction (1 = horizontal, engine.ncols2 = vertical)
+  // d - direction (1 = horizontal, prototype.ncols2 = vertical)
   // tab - a table to collect moves
-  engine.legal_move = function(board, rack, field, word, letters, d,
-                               tab) {
+  prototype.legal_move = function(board, rack, field, word,
+                                  letters, d, tab) {
     var i, c, f, m,
         u, // letters from rack used in the word
         state,
@@ -165,13 +166,13 @@ SKRABULEC.engine = (function(engine) {
     }
     assert(u.length + letters.length === rack.length);
     f = field;
-    m = engine.makeMove(engine.mnormal);
+    m = this.makeMove(this.mnormal);
     for (i = 0; i < word.length; i++) {
       c = word.charAt(i);
-      if (board[f] > engine.empty_field)
+      if (board[f] > this.empty_field)
         assert(board[f] === c);
       else {
-        assert(board[f] === engine.empty_field);
+        assert(board[f] === this.empty_field);
         assert(u.indexOf(c) >= 0);
         u = u.replace(c, "");
         m.add(f, false, c);
@@ -179,17 +180,18 @@ SKRABULEC.engine = (function(engine) {
       f += d;
     }
     assert(m.is_sorted());
-    // assert(engine.checkMove(board, m.tiles) === "");
-    state = engine.validateMove(rack, board, m.tiles);
+    // assert(this.checkMove(board, m.tiles) === "");
+    state = this.validateMove(rack, board, m.tiles);
     assert(typeof state !== "string");
-    s = engine.getNotation(board, m.tiles);
+    s = this.getNotation(board, m.tiles);
     s = s.replace(re, "");
     // console.log(s + ": " + state.points);
     tab.push([s, state.points, m.tiles, state.words]);
   };
 
-  engine.generate_move = function(board, rack, cc) {
-    var hc = cc.hc,
+  prototype.generate_move = function(board, rack, cc) {
+    var that = this,
+        hc = cc.hc,
         vc = cc.vc,
         rl1 = rack.length - 1,
         rack0 = rack,
@@ -198,12 +200,12 @@ SKRABULEC.engine = (function(engine) {
         tab = []; // to collect moves
 
     function isanchor(k) {
-      if (board[k] !== engine.empty_field)
+      if (board[k] !== that.empty_field)
         return false;
-      return board[k - 1] > engine.empty_field ||
-        board[k + 1] > engine.empty_field ||
-        board[k - engine.ncols2] > engine.empty_field ||
-        board[k + engine.ncols2] > engine.empty_field;
+      return board[k - 1] > that.empty_field ||
+        board[k + 1] > that.empty_field ||
+        board[k - that.ncols2] > that.empty_field ||
+        board[k + that.ncols2] > that.empty_field;
     }
 
     function LeftPart(PartialWord, N, limit) {
@@ -215,7 +217,7 @@ SKRABULEC.engine = (function(engine) {
             rack = rack.replace(letter, "");
             sf -= d;
             LeftPart(PartialWord + letter,
-                     engine.dawg[N[letter]],
+                     that.dawg[N[letter]],
                      limit - 1);
             rack += letter;
             sf += d;
@@ -234,26 +236,26 @@ SKRABULEC.engine = (function(engine) {
 
     function ExtendRight(PartialWord, N, field) {
       var letter;
-      if (board[field] === engine.empty_field) {
+      if (board[field] === that.empty_field) {
         if (field !== AnchorField)
           if (N[0])
-            engine.legal_move(board, rack0, sf, PartialWord, rack, d,
-                              tab);
+            that.legal_move(board, rack0, sf, PartialWord,
+                            rack, d, tab);
         for (letter in N) {
           if (rack.indexOf(letter) >= 0 &&
               letter_in_cross_check_set(letter, field)) {
             rack = rack.replace(letter, "");
             ExtendRight(PartialWord + letter,
-                        engine.dawg[N[letter]],
+                        that.dawg[N[letter]],
                         field + d);
             rack += letter;
           }
         }
-      } else if (board[field] > engine.empty_field) {
+      } else if (board[field] > that.empty_field) {
         letter = board[field];
         if (N[letter] !== undefined)
           ExtendRight(PartialWord + letter,
-                      engine.dawg[N[letter]],
+                      that.dawg[N[letter]],
                       field + d);
       }
     }
@@ -265,7 +267,7 @@ SKRABULEC.engine = (function(engine) {
           lim = 0,
           node;
       sf = k; // === AnchorField
-      while (board[i - d] > engine.empty_field) {
+      while (board[i - d] > that.empty_field) {
         PartialWord = board[i -= d] + PartialWord;
         sf -= d;
       }
@@ -274,14 +276,14 @@ SKRABULEC.engine = (function(engine) {
           if (l1 === 0)
             break;
           i -= d;
-          if (board[i] === engine.outer_field)
+          if (board[i] === that.outer_field)
             break;
           if (isanchor(i))
             break;
           lim++;
           l1--;
         }
-      if ((node = engine.query_prefix(PartialWord)) === null)
+      if ((node = that.query_prefix(PartialWord)) === null)
         return;
 
       LeftPart(PartialWord, node, lim);
@@ -295,7 +297,7 @@ SKRABULEC.engine = (function(engine) {
       d = 1;
       if (hc[AnchorField].length > 0)
         generate(AnchorField);
-      d = engine.ncols2;
+      d = this.ncols2;
       if (vc[AnchorField].length > 0)
         generate(AnchorField);
     }
@@ -304,22 +306,22 @@ SKRABULEC.engine = (function(engine) {
     return tab;
   };
 
-  engine.generateMove2 = function(board, rack) {
+  prototype.generateMove2 = function(board, rack) {
     var cc, tab, state, state2, i, min, t;
 
     if (boardEmpty(board))
-      return engine.generate_first_move(board, rack);
+      return this.generate_first_move(board, rack);
 
-    cc = engine.generate_crosschecks_from_scratch(board);
-    tab = engine.generate_move(board, rack, cc);
+    cc = this.generate_crosschecks_from_scratch(board);
+    tab = this.generate_move(board, rack, cc);
 
     console.log("" + tab.length + " moves found.");
     if (tab.length === 0) {
-      state = engine.makeState(rack, engine.mpause);
+      state = this.makeState(rack, this.mpause);
       state.board = board.slice(0);
       return state;
     }
-    state = engine.makeState(rack, engine.mnormal);
+    state = this.makeState(rack, this.mnormal);
     state.tiles = tab[0][2];
     state.words = tab[0][3];
     state.board = board.slice(0);
@@ -337,16 +339,25 @@ SKRABULEC.engine = (function(engine) {
     min = 100;
     t = -1;
     for (i = 0; i < state.tiles.length; i++)
-      if (engine.letterMap[state.tiles[i].letter].npoints < min) {
+      if (this.letterMap[state.tiles[i].letter].npoints < min) {
         t = i;
-        min = engine.letterMap[state.tiles[i].letter].npoints;
+        min = this.letterMap[state.tiles[i].letter].npoints;
       }
     assert(t >= 0);
     state.tiles[t].isblank = true;
-    state2 = engine.validateMove(rack, board, state.tiles);
+    state2 = this.validateMove(rack, board, state.tiles);
     assert(typeof state2 !== "string");
     return state2;
   };
 
+  return prototype;
+}(SKRABULEC.engine.prototype || {}));
+
+SKRABULEC.engine.make_engine = function(conf, dict) {
+  "use strict";
+  var engine = Object.create(SKRABULEC.engine.prototype);
+  engine.letterMap = conf.letter_map;
+  engine.string_map = conf.string_map;
+  engine.dawg = dict;
   return engine;
-}(SKRABULEC.engine || {}));
+};

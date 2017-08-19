@@ -17,10 +17,7 @@ SKRABULEC.main = (function() {
       dict = SKRABULEC.dict.us;
     } else
       SKRABULEC.utils.assert(false);
-    SKRABULEC.engine.initModule(conf, dict);
-    SKRABULEC.ui.initModule(container, conf);
-    SKRABULEC.testing.doAllTests();
-    SKRABULEC.ui.startGame();
+    SKRABULEC.ui.startGame(container, conf, dict);
   };
 
   return {

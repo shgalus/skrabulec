@@ -1,9 +1,9 @@
-SKRABULEC.engine = (function(engine) {
+SKRABULEC.engine.prototype = (function(prototype) {
   "use strict";
 
   var assert = SKRABULEC.utils.assert;
 
-  engine.checkMove = function(board, move) {
+  prototype.checkMove = function(board, move) {
     var i, h, d, f, f1, k,
         l = move.length;
     if (l === 0)
@@ -72,14 +72,14 @@ SKRABULEC.engine = (function(engine) {
     }
     for (i = 0; i < board.length; i++)
       if (board[i] > this.empty_field)
-        return this.string_map.must_be_cont; // a tile must be adjacent
+        return this.string_map.must_be_cont; // must be adjacent
     for (i = 0; i < l; i++)
       if (move[i].field === this.center)
         return "";
     return this.string_map.first_move;
   };
 
-  engine.checkWords = function(board, move) {
+  prototype.checkWords = function(board, move) {
     var i, k, h, d, f, w,
         that = this,
         words = [],
@@ -159,7 +159,7 @@ SKRABULEC.engine = (function(engine) {
   //
   // but the fields may not be sorted.
   //
-  engine.calculatePoints = function(board, move) {
+  prototype.calculatePoints = function(board, move) {
     var npoints = 0,
         that = this,
         horiz, d, i, f, np, p, ndoublew, ntriplew;
@@ -246,7 +246,7 @@ SKRABULEC.engine = (function(engine) {
     return npoints;
   };
 
-  engine.validateMove = function(rack, board, move) {
+  prototype.validateMove = function(rack, board, move) {
     var i, cm, cw, w, state;
 
     // Check if all tiles used in the move are on the rack.
@@ -285,5 +285,5 @@ SKRABULEC.engine = (function(engine) {
     return state;
   };
 
-  return engine;
-}(SKRABULEC.engine || {}));
+  return prototype;
+}(SKRABULEC.engine.prototype || {}));
