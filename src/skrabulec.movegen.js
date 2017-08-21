@@ -29,17 +29,12 @@ SKRABULEC.engine.prototype = (function(prototype) {
   // cross-check means that all letters are allowed. Fields marked
   // with a dot have trivial cross-checks.
 
-  var assert = SKRABULEC.utils.assert,
-      alphabet = ["a", "ą", "b", "c", "ć", "d", "e", "ę",
-                  "f", "g", "h", "i", "j", "k", "l", "ł",
-                  "m", "n", "ń", "o", "ó", "p", "r", "s",
-                  "ś", "t", "u", "w", "y", "z", "ź", "ż"],
-      boardEmpty;
+  var assert = SKRABULEC.utils.assert;
 
-  boardEmpty = function(board) {
+  prototype.board_empty = function(board) {
     var i;
     for (i = 0; i < board.length; i++)
-      if (board[i] > prototype.empty_field)
+      if (board[i] > this.empty_field)
         return false;
     return true;
   };
@@ -115,13 +110,13 @@ SKRABULEC.engine.prototype = (function(prototype) {
       while (board[i + d] > that.empty_field)
         suffix += board[i += d];
       if (prefix.length === 0 && suffix.length === 0)
-        t = alphabet.slice();
+        t = that.alphabet.slice();
       else {
         node0 = that.query_prefix(prefix);
         if (node0 !== null)
-          for (i = 0; i < alphabet.length; i++)
-            if (that.query_postfix(node0, alphabet[i] + suffix))
-              t.push(alphabet[i]);
+          for (i = 0; i < that.alphabet.length; i++)
+            if (that.query_postfix(node0, that.alphabet[i] + suffix))
+              t.push(that.alphabet[i]);
       }
       return t;
     }
@@ -309,7 +304,7 @@ SKRABULEC.engine.prototype = (function(prototype) {
   prototype.generateMove2 = function(board, rack) {
     var cc, tab, state, state2, i, min, t;
 
-    if (boardEmpty(board))
+    if (this.board_empty(board))
       return this.generate_first_move(board, rack);
 
     cc = this.generate_crosschecks_from_scratch(board);
@@ -355,9 +350,19 @@ SKRABULEC.engine.prototype = (function(prototype) {
 
 SKRABULEC.engine.make_engine = function(conf, dict) {
   "use strict";
+
+  function alphabet(letters) {
+    var i, a = [];
+    for (i = 0; i < letters.length; i++)
+      if (letters[i] !== "?")
+        a.push(letters[i]);
+    return a;
+  }
+
   var engine = Object.create(SKRABULEC.engine.prototype);
   engine.letterMap = conf.letter_map;
   engine.string_map = conf.string_map;
   engine.dawg = dict;
+  engine.alphabet = alphabet(Object.keys(engine.letterMap));
   return engine;
 };
