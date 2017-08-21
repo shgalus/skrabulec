@@ -23,8 +23,8 @@ SKRABULEC.conf.en = (function() {
       move_error:          "Erroneous move",
       set_blank_letter:    "Please set a letter for blank",
       max_three_exchanges: "No more than three exchanges are allowed",
-      not_enough_tiles_in_bag: "An exchange cannot be made if there " +
-        "are less than seven tiles in the bag",
+      not_enough_tiles_in_bag: "An exchange cannot be made if " +
+        "there are less than seven tiles in the bag",
       // validateMove
       set_some_tiles:      "Please put some tiles on the board",
       vert_or_horiz_cont:  "Tiles must be arranged adjacently in " +
