@@ -65,7 +65,10 @@ SKRABULEC.conf.en = (function() {
       dialog_ok_button:    "OK",
       dialog_repl_blank_button: "Restore blank",
       dialog_exchange_tiles_button: "Exchange",
-      end_of_game_info:    "Game is finished."
+      end_of_game_info:    "Game is finished.",
+      game_has_finished:   "The game has finished",
+      opponent_pauses:     "Opponent pauses",
+      opponent_exchanges:  "Opponent exchanges tiles"
     }
   };
 

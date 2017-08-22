@@ -642,7 +642,7 @@ SKRABULEC.ui = (function() {
     addToWordList();
     if (currentGame.is_finished) {
       gameOverInfo();
-      infoDialog('Koniec gry');
+      infoDialog(stringMap.game_has_finished);
       unblockInput();
       return;
     } else
@@ -710,7 +710,7 @@ SKRABULEC.ui = (function() {
     response = currentGame.register_player_move(move);
     assert(currentGame.is_finished);
     gameOverInfo();
-    infoDialog('Koniec gry');
+    infoDialog(stringMap.game_has_finished);
     unblockInput();
   };
 
@@ -853,11 +853,11 @@ SKRABULEC.ui = (function() {
     else if (response.hasOwnProperty("pause")) {
       setPoints();
       addToWordList();
-      infoDialog("Przeciwnik zgłosił pauzę");
+      infoDialog(stringMap.opponent_pauses);
     } else if (response.hasOwnProperty("exchange")) {
       setPoints();
       addToWordList();
-      infoDialog("Przeciwnik wymienił klocki");
+      infoDialog(stringMap.opponent_exchanges);
     }
     if (oppRackVisible) {
       clearOpponentRack();

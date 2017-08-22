@@ -71,7 +71,10 @@ SKRABULEC.conf.pl = (function() {
       dialog_ok_button:    "OK",
       dialog_repl_blank_button: "Przywróć mydło",
       dialog_exchange_tiles_button: "Wymień",
-      end_of_game_info:    "Koniec gry."
+      end_of_game_info:    "Koniec gry.",
+      game_has_finished:   "Koniec gry",
+      opponent_pauses:     "Przeciwnik zgłasza pauzę",
+      opponent_exchanges:  "Przeciwnik wymienia klocki"
     }
   };
 
