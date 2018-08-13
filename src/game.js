@@ -1,9 +1,10 @@
 SKRABULEC.game = SKRABULEC.game || {};
 
-SKRABULEC.game.prototype = (function(prototype) {
+SKRABULEC.game.prototype = (function() {
   "use strict";
 
-  var assert = SKRABULEC.utils.assert;
+  var assert = SKRABULEC.utils.assert,
+      prototype = {};
 
   prototype.register_player_move = function(move) {
     var response = {},
@@ -296,7 +297,7 @@ SKRABULEC.game.prototype = (function(prototype) {
   };
 
   return prototype;
-}(SKRABULEC.game.prototype || {}));
+}());
 
 SKRABULEC.game.make_game = function(conf, dict) {
   "use strict";
