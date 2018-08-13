@@ -72,7 +72,7 @@ SKRABULEC.settings = (function() {
   };
 
   getSettings = function(container, callback) {
-    
+
     function create_control_groups() {
       $("input[type='radio']").checkboxradio({
         classes: {
@@ -111,7 +111,7 @@ SKRABULEC.settings = (function() {
       radio_label("set-game-us");
       other_control("set-main-ok");
     }
-    
+
     container.append(configMap.main_html);
     create_control_groups();
     set_language("en");
