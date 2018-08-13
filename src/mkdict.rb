@@ -1,4 +1,4 @@
-#!/usr/bin/ruby2.1 -w
+#!/usr/bin/ruby -w
 # coding: us-ascii
 
 #
