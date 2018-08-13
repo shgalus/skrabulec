@@ -14,7 +14,7 @@ all:
 dist: all
 	rm -rf $(DIST) $(DIST).tar.gz
 	mkdir $(DIST)
-	ruby2.1 -n -e \
+	ruby -n -e \
 	'puts $$_.gsub(/="\.\.\/lib\//, "=\"")' \
 	src/skrabulec.html > $(DIST)/skrabulec.html
 	cp -pr lib/images $(DIST)
@@ -22,7 +22,6 @@ dist: all
 	cp -p lib/jquery-3.2.1.min.js $(DIST)
 	cp -p lib/jquery-ui.min.js $(DIST)
 	cp -p src/skrabulec.css $(DIST)
-	cp -p src/skrabulec.settings.css $(DIST)
 	cp -p src/*.js $(DIST)
 	tar cvf $(DIST).tar $(DIST)
 	gzip -9 $(DIST).tar

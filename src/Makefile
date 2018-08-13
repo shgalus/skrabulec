@@ -2,9 +2,8 @@ SHELL = /bin/sh
 
 .PHONY: all lint clean spotless
 
-JSSRCS = confen.js confpl.js main.js skrabulec.game.js		\
-skrabulec.movegen.js skrabulec.settings.js skrabulec.tools.js	\
-skrabulec.validate.js testing.js ui.js utils.js
+JSSRCS = confen.js confpl.js engine.js game.js main.js settings.js	\
+testing.js ui.js utils.js
 
 DICTS = dicten.js dictpl.js dictus.js
 
