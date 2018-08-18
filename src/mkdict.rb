@@ -1,11 +1,10 @@
-#!/usr/bin/ruby -w
 # coding: us-ascii
 
 #
 # Builds JavaSript dawg dictionary.
 #
 
-require '../lib/dawg/dawg'
+require './build/dawg/dawg'
 
 def to_js(dawg)
   # Prepare tab and hash to renumber nodes.
@@ -20,7 +19,9 @@ def to_js(dawg)
     h[id[:id]] = k
     k += 1
   }
-  print "SKRABULEC.dict.#{$dictname} = ["
+  print "var SKRABULEC=SKRABULEC || {};" \
+        "SKRABULEC.dict=SKRABULEC.dict || {};" \
+        "SKRABULEC.dict.#{$dictname}=["
   ts = t.size
   i = 0
   t.each {|d|
