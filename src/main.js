@@ -1,33 +1,38 @@
-SKRABULEC.main = (function() {
+import {assert} from "./utils.es6.js";
+import {getSettings} from "./settings.es6.js";
+import {configMap as config_map_en} from "./confen.es6.js";
+import {configMap as config_map_pl} from "./confpl.es6.js";
+import {startGame} from "./ui.es6.js";
+
+var $ = window.$;
+var jQuery = window.jQuery;
+var dicten = window.SKRABULEC.dict.en;
+var dictpl = window.SKRABULEC.dict.pl;
+var dictus = window.SKRABULEC.dict.us;
+
+var initModule;
+
+export const version = "0.11";
+
+initModule = function(container, option) {
   "use strict";
-  var version, initModule;
 
-  version = "0.11";
-
-  initModule = function(container, option) {
-    var conf, dict;
-    if (option === "en") {
-      conf = SKRABULEC.conf.en.config_map;
-      dict = SKRABULEC.dict.en;
-    } else if (option === "pl") {
-      conf = SKRABULEC.conf.pl.config_map;
-      dict = SKRABULEC.dict.pl;
-    } else if (option === "us") {
-      conf = SKRABULEC.conf.en.config_map;
-      dict = SKRABULEC.dict.us;
-    } else
-      SKRABULEC.utils.assert(false);
-    SKRABULEC.ui.startGame(container, conf, dict);
-  };
-
-  return {
-    varsion: version,
-    initModule: initModule
-  };
-}());
+  var conf, dict;
+  if (option === "en") {
+    conf = config_map_en;
+    dict = dicten;
+  } else if (option === "pl") {
+    conf = config_map_pl;
+    dict = dictpl;
+  } else if (option === "us") {
+    conf = config_map_en;
+    dict = dictus;
+  } else
+    assert(false);
+  startGame(container, conf, dict);
+};
 
 $(document).ready(function() {
   "use strict";
-  SKRABULEC.settings.getSettings(jQuery('#scrabble'),
-                                 SKRABULEC.main.initModule);
+  getSettings(jQuery('#scrabble'), initModule);
 });
