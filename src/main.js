@@ -1,8 +1,8 @@
-import {assert} from "./utils.es6.js";
-import {getSettings} from "./settings.es6.js";
-import {configMap as config_map_en} from "./confen.es6.js";
-import {configMap as config_map_pl} from "./confpl.es6.js";
-import {startGame} from "./ui.es6.js";
+import {assert} from "./utils.js";
+import {getSettings} from "./settings.js";
+import {configMap as config_map_en} from "./confen.js";
+import {configMap as config_map_pl} from "./confpl.js";
+import {startGame} from "./ui.js";
 
 var $ = window.$;
 var jQuery = window.jQuery;

@@ -1,5 +1,5 @@
-import {assert, nextPermutation, Comblex} from "./utils.es6.js";
-import {Engine, cToi, printBoard} from "./engine.es6.js";
+import {assert, nextPermutation, Comblex} from "./utils.js";
+import {Engine, cToi, printBoard} from "./engine.js";
 
 var assertArrEq, testMoveGen, testNextPermutation, testComblex,
     doAllTests;

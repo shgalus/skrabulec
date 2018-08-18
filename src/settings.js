@@ -1,4 +1,4 @@
-import {assert} from "./utils.es6.js";
+import {assert} from "./utils.js";
 
 var $ = window.$;
 

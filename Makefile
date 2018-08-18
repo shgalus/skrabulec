@@ -6,7 +6,7 @@ BROWSERIFY = /usr/local/bin/browserify
 JQUERYUI = jquery-ui-1.12.1.custom
 JQUIVER = jquery-ui.js
 
-JSSRC = utils.es6.js confen.es6.js confpl.es6.js engine.es6.js game.es6.js testing.es6.js ui.es6.js settings.es6.js main.es6.js
+JSSRC = utils.js confen.js confpl.js engine.js game.js testing.js ui.js settings.js main.js
 # OBJS = $(addprefix $(BUILD1)/, $(JSSRC) jquery-3.2.1.min.js $(JQUIVER))
 OBJS = $(addprefix $(BUILD1)/, $(JSSRC))
 

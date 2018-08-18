@@ -1,6 +1,6 @@
-import {assert, makeArray} from "./utils.es6.js";
-import {Game} from "./game.es6.js";
-import {scores, Move, mnormal} from "./engine.es6.js";
+import {assert, makeArray} from "./utils.js";
+import {Game} from "./game.js";
+import {scores, Move, mnormal} from "./engine.js";
 
 // TODO: make it a class.
 

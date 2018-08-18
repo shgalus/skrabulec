@@ -1,4 +1,4 @@
-import {assert, nextPermutation, Comblex} from "./utils.es6.js";
+import {assert, nextPermutation, Comblex} from "./utils.js";
 
 export class Bag {
   constructor(letter_map) {

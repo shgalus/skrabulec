@@ -1,8 +1,8 @@
-import {assert} from "./utils.es6.js";
+import {assert} from "./utils.js";
 import {Bag, Engine, State,
         mnormal, mpause, mexchange, mresignation,
         eognormal, eogpauses, eogresignation,
-        cToi} from "./engine.es6.js";
+        cToi} from "./engine.js";
 
 export class Game {
   constructor(conf, dict) {
