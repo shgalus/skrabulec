@@ -111,7 +111,6 @@ startGame = function(container, conf, dict) {
   letterMap = conf.letter_map;
   currentGame = new Game(conf, dict);
   uiEngine = currentGame.engine;
-  console.log(uiEngine);
 
   html = '<div id="idleftpanel">';
   html += '<table id="idgame" class="game"><tbody>';
@@ -269,7 +268,6 @@ startGame = function(container, conf, dict) {
   h += '</div></div></body></html>';
   html += h;
 
-  // console.log(html);
   container.append(html);
   markDroppable();
   $("body").on("selectstart", function() {
@@ -335,12 +333,9 @@ startGame = function(container, conf, dict) {
   blockedInput = true;
 
   oppRackVisible = false;
-  console.log("Przed putPlayerRack");
-  console.log(currentGame.player_rack);
   putPlayerRack(currentGame.player_rack);
   $("#idnotb").text(currentGame.bag.size());
   blockedInput = false;
-  console.log("Koniec startGame");
 };
 
 // If there are active tiles left on the board, move them back to
@@ -921,5 +916,3 @@ gameOverInfo = function() {
   //d.scrollTop(d.prop("scrollHeight"));
   d.animate({scrollTop: d.prop("scrollHeight")}, 1000);
 };
-
-console.log("Jestem tu!");

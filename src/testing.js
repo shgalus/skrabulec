@@ -1,5 +1,6 @@
 import {assert, nextPermutation, Comblex} from "./utils.js";
 import {Engine, cToi, printBoard} from "./engine.js";
+import {configMap as config_map_pl} from "./confpl.js";
 
 var assertArrEq, testMoveGen, testNextPermutation, testComblex,
     doAllTests;
@@ -14,8 +15,8 @@ assertArrEq = function(a, b) {
 
 testMoveGen = function() {
   "use strict";
-  return;       // TODO: remove this when dict will be ready.
-  var engine = new Engine(null, null),
+  var dictpl = window.SKRABULEC.dict.pl;
+  var engine = new Engine(config_map_pl, dictpl),
       board, cc, rack;
   
   board = engine.initBoard();

@@ -13,7 +13,6 @@ export class Game {
     this.num_player_exchanges = 0;
     this.num_opponent_exchanges = 0;
     this._player_rack = this.bag.issue(7);
-    console.log("!!!" + this._player_rack);
     this.opponent_rack = this.bag.issue(7);
     this.points_left_on_rack = 0;
     this.is_finished = false;
@@ -75,9 +74,6 @@ export class Game {
       s = this.engine.supplementRack(this._player_rack, move.tiles,
                                      this.bag);
       this._player_rack = s.rack + s.new_tiles;
-      console.log("Przed add_to_move_list:");
-      console.log(state);
-      // Tutaj move_kind jest niezdef.
       this.add_to_move_list(state);
       if (!this.is_finished)
         response.new_tiles = s.new_tiles;
@@ -196,10 +192,6 @@ export class Game {
   // opponent's first move and so on.
   //
   add_to_move_list(state) {
-    console.log("W add_to_move_list");
-    console.log(state);
-    console.log("state.rack:");
-    console.log(state.rack);
     var i;
     assert(state.rack !== undefined);
     assert(state.move_kind !== undefined);
