@@ -124,7 +124,7 @@ const eognormal =    0,
 
 // Converts integer coordinates to normal coordinates, eg. iToc(144)
 // === "H8".
-function iToc(n) {
+export function iToc(n) {
   "use strict";
   var r, c;
   assert(Number.isInteger(n));
@@ -721,7 +721,7 @@ export class Engine {
         (++i === cw.errors.length ? "." : ", ");
       return w;
     }
-    state = new State(rack, this.mnormal);
+    state = new State(rack, mnormal);
     state.tiles = move;
     state.words = cw.words;
     state.board = board.slice(0);

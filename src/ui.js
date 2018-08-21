@@ -1,6 +1,6 @@
 import {assert, makeArray} from "./utils.js";
 import {Game} from "./game.js";
-import {scores, Move, mnormal} from "./engine.js";
+import {scores, Move, mnormal, iToc} from "./engine.js";
 
 // TODO: make it a class.
 
@@ -375,7 +375,7 @@ addToWordList = function() {
   h = l % 2 === 0 ? '<span class="player">'
     : '<span class="opponent">';
   if (ml[l].move_kind === uiEngine.mnormal) {
-    h += uiEngine.iToc(ml[l].tiles[0].field) + " ";
+    h += iToc(ml[l].tiles[0].field) + " ";
     h += ml[l].words[0].toUpperCase();
   } else if (ml[l].move_kind === uiEngine.mpause) {
     h += "&lt;" + stringMap.word_list_pause + "&gt;";
@@ -877,7 +877,7 @@ getOpponentMove = function() {
         }
       }
       assert(1 <= j && j <= 7);
-      d = "#idbdf" + uiEngine.iToc(move[i].field);
+      d = "#idbdf" + iToc(move[i].field);
       animateDivDrop("#idor" + j, d);
       marked[j] = true;
     }
