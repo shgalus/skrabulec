@@ -1,5 +1,3 @@
-var comblexPrototype = {};
-
 export function assert(condition, message) {
   "use strict";
   if (!condition)
