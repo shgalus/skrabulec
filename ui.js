@@ -1,6 +1,7 @@
 import {assert, makeArray} from "./utils.js";
 import {Game} from "./game.js";
-import {scores, Move, mnormal, iToc} from "./engine.js";
+import {scores, Move, mnormal, mpause, mexchange, mresignation,
+        iToc} from "./engine.js";
 
 // TODO: make it a class.
 
@@ -362,6 +363,7 @@ moveActiveTilesToRack = function() {
 
 addToWordList = function() {
   "use strict";
+  // TODO: why it works when Game has no getter for move_list?
   var ml = currentGame.move_list,
       l, h, d;
   l = ml.length;
@@ -369,12 +371,12 @@ addToWordList = function() {
     return;
   h = l % 2 === 0 ? '<span class="player">'
     : '<span class="opponent">';
-  if (ml[l].move_kind === uiEngine.mnormal) {
+  if (ml[l].move_kind === mnormal) {
     h += iToc(ml[l].tiles[0].field) + " ";
     h += ml[l].words[0].toUpperCase();
-  } else if (ml[l].move_kind === uiEngine.mpause) {
+  } else if (ml[l].move_kind === mpause) {
     h += "&lt;" + stringMap.word_list_pause + "&gt;";
-  } else if (ml[l].move_kind === uiEngine.mexchange) {
+  } else if (ml[l].move_kind === mexchange) {
     h += "&lt;" + stringMap.word_list_exchange + "&gt;";
   }
   h += '<br></span>';
@@ -419,7 +421,7 @@ setPoints = function() {
 
 exchangeTiles = function() {
   "use strict";
-  var move = uiEngine.makeMove(uiEngine.mexchange),
+  var move = uiEngine.makeMove(mexchange),
       response, i, d;
   for (i = 1; i <= 7; i++) {
     d = $("#idex1" + i).children()[0];
@@ -661,7 +663,7 @@ onClickButtonPause = function() {
   }
   blockInput();
   moveActiveTilesToRack();
-  move = uiEngine.makeMove(uiEngine.mpause);
+  move = uiEngine.makeMove(mpause);
   response = currentGame.register_player_move(move);
   setPoints();
   addToWordList();
@@ -712,7 +714,7 @@ onClickButtonExchange = function() {
     return;
   }
   blockInput();
-  move = uiEngine.makeMove(uiEngine.mexchange);
+  move = uiEngine.makeMove(mexchange);
   response = currentGame.register_player_move(move);
   if (response.hasOwnProperty("error")) {
     infoDialog(response.error);
@@ -733,7 +735,7 @@ onClickButtonResign = function() {
     return;
   }
   blockInput();
-  move = uiEngine.makeMove(uiEngine.mresignation);
+  move = uiEngine.makeMove(mresignation);
   response = currentGame.register_player_move(move);
   assert(currentGame.is_finished);
   gameOverInfo();
