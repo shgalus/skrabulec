@@ -1,10 +1,17 @@
 SHELL = /bin/sh
 RUBY = /usr/bin/ruby2.3 -w
 UNZIP = unzip
+GZIP = gzip
+INSTALL = install
+
+prefix = /usr/local
+datadir = $(prefix)/share/skrabulec
+# Leave empty for true install.
+DESTDIR = .
+BUILDDIR = build
 
 # Leave empty unless source maps should be generated.
 SOURCE_MAPS = true
-
 ifdef SOURCE_MAPS
 BABEL = node_modules/.bin/babel -s inline
 BROWSERIFY = /usr/local/bin/browserify -d
@@ -15,51 +22,53 @@ endif
 
 JQUERYUI = jquery-ui-1.12.1.custom
 
-# prefix = /usr/local/share
-prefix = .
+SRCS_JS = utils.js confen.js confpl.js engine.js game.js testing.js	\
+ui.js settings.js main.js
 
-# Destination directory for the bundle.
-DESTDIR = $(prefix)/skrabulec
-BUILDDIR = ./build
-SRCS_JS = utils.js confen.js confpl.js engine.js game.js testing.js ui.js settings.js main.js
+GENERATED = jquery-ui.min.js jquery-ui.min.css images dicten.js	\
+dictpl.js dictus.js skrabulec.min.js
 
-BUNDLE = jquery-3.2.1.min.js jquery-ui.min.js jquery-ui.min.css images dicten.js dictpl.js dictus.js skrabulec.min.js skrabulec.css skrabulec.html
+ALL = skrabulec.html skrabulec.css jquery-3.2.1.min.js $(GENERATED)
 
-.PHONY: all new_bin lint clean spotless
+DESTFILES = skrabulec.html skrabulec.css jquery-3.2.1.min.js		\
+jquery-ui.min.js jquery-ui.min.css dicten.js dictpl.js dictus.js	\
+skrabulec.min.js
 
 $(BUILDDIR)/%.js : %.js | $(BUILDDIR)
 	$(BABEL) -o $@ $<
 
-all: new_bin
+.PHONY: all install uninstall lint clean spotless
 
-new_bin: $(addprefix $(DESTDIR)/, $(BUNDLE))
-$(addprefix $(DESTDIR)/, $(BUNDLE)): | $(DESTDIR)
-$(DESTDIR)/jquery-3.2.1.min.js: jquery-3.2.1.min.js
-	cp $^ $@
-$(addprefix $(DESTDIR)/, jquery-ui.min.js jquery-ui.min.css): $(JQUERYUI).zip
-	$(UNZIP) -qo -j -DD $^ $(JQUERYUI)/$(notdir $@) -d$(DESTDIR)
-$(DESTDIR)/images: $(JQUERYUI).zip
-	$(UNZIP) -qo -j -DD $^ $(JQUERYUI)/images/* -d$(DESTDIR)/images
-$(addprefix $(DESTDIR)/, dicten.js dictpl.js dictus.js): ./mkdict.rb $(BUILDDIR)/dawg
+all: $(ALL)
+
+jquery-ui.min.js jquery-ui.min.css: $(JQUERYUI).zip
+	$(UNZIP) -qo -j -DD $^ $(JQUERYUI)/$@
+images: $(JQUERYUI).zip
+	$(UNZIP) -qo -j -DD $^ $(JQUERYUI)/images/* -dimages
+dicten.js dictpl.js dictus.js: mkdict.rb $(BUILDDIR)/dawg
 $(BUILDDIR)/dawg: dawg-0.0.5.gem | $(BUILDDIR)
-	cd $(BUILDDIR) && mkdir dawg && tar xvf ../dawg-0.0.5.gem data.tar.gz -O | tar zxv -C dawg --strip-components 1
-$(DESTDIR)/dicten.js: sowpods.txt.gz
-	gzip -dc sowpods.txt.gz | $(RUBY) mkdict.rb > $@
-$(DESTDIR)/dictpl.js: sjp-20170729.zip
-	$(UNZIP) -p sjp-20170729.zip slowa.txt | $(RUBY) mkdict.rb > $@
-$(DESTDIR)/dictus.js: twl06.txt.gz
-	gzip -dc twl06.txt.gz | $(RUBY) mkdict.rb > $@
-$(DESTDIR)/skrabulec.min.js: $(BUILDDIR)/skrabulec.js
-	# uglifyjs $(BUILDDIR)/skrabulec.js -c -m -o $(DESTDIR)/skrabulec.min.js
-	cp $(BUILDDIR)/skrabulec.js $(DESTDIR)/skrabulec.min.js
+	cd $(BUILDDIR) && mkdir dawg && tar xvf ../$< data.tar.gz -O	\
+        | tar zxv -C dawg --strip-components 1
+dicten.js: sowpods.txt.gz
+	$(GZIP) -dc $< | $(RUBY) mkdict.rb > $@
+dictpl.js: sjp-20170729.zip
+	$(UNZIP) -p $< slowa.txt | $(RUBY) mkdict.rb > $@
+dictus.js: twl06.txt.gz
+	$(GZIP) -dc $< | $(RUBY) mkdict.rb > $@
+skrabulec.min.js: $(BUILDDIR)/skrabulec.js
+	# uglifyjs $(BUILDDIR)/skrabulec.js -c -m -o skrabulec.min.js
+	cp $(BUILDDIR)/skrabulec.js skrabulec.min.js
 $(BUILDDIR)/skrabulec.js: $(addprefix $(BUILDDIR)/, $(SRCS_JS))
-	$(BROWSERIFY) $(addprefix $(BUILDDIR)/, $(SRCS_JS)) -o $(BUILDDIR)/skrabulec.js
-$(DESTDIR)/skrabulec.html: skrabulec.html
-	cp $^ $@
-$(DESTDIR)/skrabulec.css: skrabulec.css
-	cp $^ $@
-$(DESTDIR) $(BUILDDIR):
-	mkdir -p $@
+	$(BROWSERIFY) $^ -o $(BUILDDIR)/skrabulec.js
+$(BUILDDIR):
+	mkdir $@
+
+install: all
+	$(INSTALL) -d $(DESTDIR)$(datadir) $(DESTDIR)$(datadir)/images
+	$(INSTALL) -m 644 $(DESTFILES) $(DESTDIR)$(datadir)
+	$(INSTALL) -m 644 images/* $(DESTDIR)$(datadir)/images
+uninstall:
+	rm -rf $(DESTDIR)$(datadir)
 
 lint:
 	jshint $(SRCS_JS)
@@ -67,4 +76,4 @@ lint:
 clean:
 	rm -rf $(BUILDDIR)
 spotless: clean
-	rm -rf $(DESTDIR)
+	rm -rf $(GENERATED)
