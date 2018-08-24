@@ -421,7 +421,7 @@ setPoints = function() {
 
 exchangeTiles = function() {
   "use strict";
-  var move = uiEngine.makeMove(mexchange),
+  var move = new Move(mexchange),
       response, i, d;
   for (i = 1; i <= 7; i++) {
     d = $("#idex1" + i).children()[0];
@@ -663,7 +663,7 @@ onClickButtonPause = function() {
   }
   blockInput();
   moveActiveTilesToRack();
-  move = uiEngine.makeMove(mpause);
+  move = new Move(mpause);
   response = currentGame.register_player_move(move);
   setPoints();
   addToWordList();
@@ -714,7 +714,7 @@ onClickButtonExchange = function() {
     return;
   }
   blockInput();
-  move = uiEngine.makeMove(mexchange);
+  move = new Move(mexchange);
   response = currentGame.register_player_move(move);
   if (response.hasOwnProperty("error")) {
     infoDialog(response.error);
@@ -735,7 +735,7 @@ onClickButtonResign = function() {
     return;
   }
   blockInput();
-  move = uiEngine.makeMove(mresignation);
+  move = new Move(mresignation);
   response = currentGame.register_player_move(move);
   assert(currentGame.is_finished);
   gameOverInfo();
