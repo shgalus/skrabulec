@@ -17,7 +17,7 @@ testMoveGen = function() {
   "use strict";
   var dictpl = window.SKRABULEC.dict.pl;
   var engine = new Engine(config_map_pl, dictpl),
-      board, cc, rack;
+      board, rack, state;
   
   board = engine.initBoard();
   board[cToi("F8")] = "m";
@@ -30,10 +30,10 @@ testMoveGen = function() {
   board[cToi("H9")] = "k";
   board[cToi("H10")] = "a";
   console.log(printBoard(board));
-  cc = engine.generate_crosschecks_from_scratch(board);
   rack = "kółkorf";
   console.log("Rack: " + rack);
-  engine.generate_move(board, rack, cc);
+  state = engine.generateMove2(board, rack);
+  console.log(state);
 };
 
 testNextPermutation = function() {
