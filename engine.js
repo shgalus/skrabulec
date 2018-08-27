@@ -315,6 +315,19 @@ export class Engine {
     };
   }
 
+  mustSupplementRack(rack, move, bag, s) {
+    var i, c;
+    for (i = 0; i < move.length; i++) {
+      c = move[i].isblank ? "?" : move[i].letter;
+      assert(rack.indexOf(c) >= 0);
+      rack = rack.replace(c, "");
+    }
+    return {
+      rack:      rack,
+      new_tiles: bag.must_issue(s)
+    };
+  }
+
   // Returns true if the word is found in the dictionary or false
   // otherwise.
   wordInDict(word) {
@@ -797,7 +810,7 @@ export class Engine {
     assert(k >= 0);
     mv = new Move(mnormal);
     for (i = 0; i < low[k].length; i++)
-      mv.add(this.center + i, false, low[k].charAt(i));
+      mv.add(center + i, false, low[k].charAt(i));
     assert(this.checkMove(board, mv.tiles) === "");
     cw = this.checkWords(board, mv.tiles);
     assert(cw.errors.length === 0);
@@ -1039,7 +1052,7 @@ export class Engine {
     cc = this.generate_crosschecks_from_scratch(board);
     tab = this.generate_move(board, rack, cc);
 
-    console.log("" + tab.length + " moves found.");
+    // console.log("" + tab.length + " moves found.");
     if (tab.length === 0) {
       state = new State(rack, mpause);
       state.board = board.slice(0);
