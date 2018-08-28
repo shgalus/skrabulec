@@ -18,7 +18,7 @@ assertArrEq = function(a, b) {
 // only.
 generateRecord = function() {
   "use strict";
-  var dictpl = global.SKRABULEC.dict.pl;
+  var dictpl = window.SKRABULEC.dict.pl;
   var engine = new Engine(config_map_pl, dictpl),
       board, bag, plr_rack, opp_rack, state, s, p;
   board = engine.initBoard();
@@ -84,7 +84,7 @@ const record1 = [
 
 testEngine = function() {
   "use strict";
-  var dictpl = global.SKRABULEC.dict.pl;
+  var dictpl = window.SKRABULEC.dict.pl;
   var engine = new Engine(config_map_pl, dictpl),
       board, bag, rack, plr_rack, opp_rack, state, s;
   board = engine.initBoard();
@@ -99,9 +99,11 @@ testEngine = function() {
     assert(rack === record1[i][0]);
     state = engine.generateMove2(board, rack);
     board = state.board.slice(0);
-    assert(engine.getNotation(state.board, state.tiles) === record1[i][1]);
+    assert(engine.getNotation(state.board, state.tiles) ===
+           record1[i][1]);
     assert(state.points === record1[i][2]);
-    s = engine.mustSupplementRack(rack, state.tiles, bag, record1[i][3]);
+    s = engine.mustSupplementRack(
+      rack, state.tiles, bag, record1[i][3]);
     if (i % 2 === 0)
       plr_rack = s.rack + s.new_tiles;
     else
