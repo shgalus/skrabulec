@@ -1,8 +1,6 @@
 import {assert} from "./utils.js";
-import {Bag, Engine, State,
-        mnormal, mpause, mexchange, mresignation,
-        eognormal, eogpauses, eogresignation,
-        cToi} from "./engine.js";
+import {Bag, Engine, State, MOVE_TYPE, EOG_TYPE, ctoi}
+from "./engine.js";
 
 export class Game {
   constructor(conf, dict) {
@@ -23,14 +21,6 @@ export class Game {
     this.eog_reason = null;
   }
 
-//  get engine() {
-//    return this.engine;
-//  }
-
-//  set engine(value) {
-//    this.engine = value;
-  //  }
-
   get player_rack() {
     return this._player_rack;
   }
@@ -45,9 +35,9 @@ export class Game {
       return response;
     }
 
-    if (move.kind === mnormal) {
+    if (move.kind === MOVE_TYPE.NORMAL) {
       for (i = 0; i < move.tiles.length; i++) {
-        if ((move.tiles[i].field = cToi(move.tiles[i].field))
+        if ((move.tiles[i].field = ctoi(move.tiles[i].field))
             === undefined) {
           response.error = this.engine.string_map.move_error;
           return response;
@@ -79,13 +69,13 @@ export class Game {
         response.new_tiles = s.new_tiles;
       return response;
     }
-    if (move.kind === mpause) {
-      state = new State(this._player_rack, mpause);
+    if (move.kind === MOVE_TYPE.PAUSE) {
+      state = new State(this._player_rack, MOVE_TYPE.PAUSE);
       state.board = this.current_board.slice(0);
       this.add_to_move_list(state);
       return response;
     }
-    if (move.kind === mexchange) {
+    if (move.kind === MOVE_TYPE.EXCHANGE) {
       if (this.num_player_exchanges >= 3) {
         response.error = this.engine.string_map.max_three_exchanges;
         return response;
@@ -97,7 +87,7 @@ export class Game {
       }
       if (move.tiles.length === 0)
         return response;
-      state = new State(this._player_rack, mexchange);
+      state = new State(this._player_rack, MOVE_TYPE.EXCHANGE);
       state.tiles = move.tiles;
       state.board = this.current_board.slice(0);
       s = move.tiles;
@@ -115,8 +105,8 @@ export class Game {
       this.num_player_exchanges++;
       return response;
     }
-    if (move.kind === mresignation) {
-      state = new State(this._player_rack, mresignation);
+    if (move.kind === MOVE_TYPE.RESIGNATION) {
+      state = new State(this._player_rack, MOVE_TYPE.RESIGNATION);
       state.board = this.current_board.slice(0);
       this.add_to_move_list(state);
       assert(this.is_finished);
@@ -128,7 +118,7 @@ export class Game {
     var state, response = {}, s;
     state = this.engine.generateMove2(this.current_board,
                                       this.opponent_rack);
-    if (state.move_kind === mnormal) {
+    if (state.move_kind === MOVE_TYPE.NORMAL) {
       assert(typeof this.engine.validateMove(this.opponent_rack,
                                              this.current_board,
                                              state.tiles)
@@ -139,11 +129,11 @@ export class Game {
       this.opponent_rack = s.rack + s.new_tiles;
       this.add_to_move_list(state);
       response.tiles = state.tiles;
-    } else if (state.move_kind === mpause) {
+    } else if (state.move_kind === MOVE_TYPE.PAUSE) {
       this.add_to_move_list(state);
       response.pause = true;
     }
-    else if (state.move_kind === mexchange) {
+    else if (state.move_kind === MOVE_TYPE.EXCHANGE) {
       this.add_to_move_list(state);
       this.num_opponent_exchanges++;
       response.exchange = true;
@@ -160,19 +150,19 @@ export class Game {
   //   move_kind: configMap.move_kind_map.normal,
   //   tiles: [
   //     {
-  //       field:   cToi("H6"),
+  //       field:   ctoi("H6"),
   //       isblank: false,
   //       letter:  "f"
   //     }, {
-  //       field:   cToi("H7"),
+  //       field:   ctoi("H7"),
   //       isblank: false,
   //       letter:  "a"
   //     }, {
-  //       field:   cToi("H8"),
+  //       field:   ctoi("H8"),
   //       isblank: false,
   //       letter:  "k"
   //     }, {
-  //       field:   cToi("H9"),
+  //       field:   ctoi("H9"),
   //       isblank: false,
   //       letter:  "t"
   //     }
@@ -195,7 +185,7 @@ export class Game {
     var i;
     assert(state.rack !== undefined);
     assert(state.move_kind !== undefined);
-    if (state.move_kind === mnormal) {
+    if (state.move_kind === MOVE_TYPE.NORMAL) {
       assert(state.tiles !== undefined);
       assert(state.tiles.length > 0);
       for (i = 0; i < state.tiles.length; i++) {
@@ -212,7 +202,7 @@ export class Game {
       assert(Number.isInteger(state.points));
       assert(state.points > 0);
       assert(state.total_points === undefined);
-    } else if (state.move_kind === mpause) {
+    } else if (state.move_kind === MOVE_TYPE.PAUSE) {
       assert(state.tiles === undefined);
       assert(state.words === undefined);
       assert(state.board !== undefined);
@@ -220,7 +210,7 @@ export class Game {
       assert(state.points === undefined);
       assert(state.total_points === undefined);
       state.points = 0;
-    } else if (state.move_kind === mexchange) {
+    } else if (state.move_kind === MOVE_TYPE.EXCHANGE) {
       assert(state.tiles !== undefined);
       assert(state.tiles.length > 0);
       assert(state.words === undefined);
@@ -229,7 +219,7 @@ export class Game {
       assert(state.points === undefined);
       assert(state.total_points === undefined);
       state.points = 0;
-    } else if (state.move_kind === mresignation) {
+    } else if (state.move_kind === MOVE_TYPE.RESIGNATION) {
       assert(state.tiles === undefined);
       assert(state.words === undefined);
       assert(state.board !== undefined);
@@ -246,7 +236,7 @@ export class Game {
     else
       state.total_points = state.points;
     this.move_list.push(state);
-    if (state.move_kind === mnormal) {
+    if (state.move_kind === MOVE_TYPE.NORMAL) {
       console.log(this.engine.getNotation(state.board, state.tiles));
     }
     this.check_game_state();
@@ -269,7 +259,7 @@ export class Game {
       if (mll < 4)
         return false;
       for (i = 1; i <= 4; i++)
-        if (that.move_list[mll - i].move_kind !== mpause)
+        if (that.move_list[mll - i].move_kind !== MOVE_TYPE.PAUSE)
           return false;
       return true;
     }
@@ -282,7 +272,7 @@ export class Game {
       r1 = this.opponent_rack; r2 = this._player_rack;
     }
     if (r1.length === 0) {
-      this.eog_reason = eognormal;
+      this.eog_reason = EOG_TYPE.NORMAL;
       p1 = sum_rack(r2);
       t1 = p1 + this.move_list[mll - 1].total_points;
       p2 = - p1;
@@ -290,15 +280,16 @@ export class Game {
       this.is_finished = true;
     } else if (four_consecutive_pauses()) {
       // \cite [\S5.1.4] {reg-tur-pfs-2015}
-      this.eog_reason = eogpauses;
+      this.eog_reason = EOG_TYPE.PAUSES;
       p1 = - sum_rack(r1);
       t1 = p1 + this.move_list[mll - 1].total_points;
       p2 = - sum_rack(r2);
       t2 = p2 + (mll >= 2 ? this.move_list[mll - 2].total_points : 0);
       this.is_finished = true;
-    } else if (this.move_list[mll - 1].move_kind === mresignation) {
+    } else if (this.move_list[mll - 1].move_kind ===
+               MOVE_TYPE.RESIGNATION) {
       // \cite [\S7.2c] {reg-tur-pfs-2015}
-      this.eog_reason = eogresignation;
+      this.eog_reason = EOG_TYPE.RESIGNATION;
       p1 = 1 - this.move_list[mll - 1].total_points;
       t1 = 1;
       p2 =  400 -

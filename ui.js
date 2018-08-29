@@ -1,7 +1,6 @@
 import {assert, makeArray} from "./utils.js";
 import {Game} from "./game.js";
-import {scores, Move, mnormal, mpause, mexchange, mresignation,
-        iToc} from "./engine.js";
+import {BONUS_TABLE, Move, MOVE_TYPE, itoc} from "./engine.js";
 
 // TODO: make it a class.
 
@@ -138,7 +137,7 @@ startGame = function(container, conf, dict) {
     c = String.fromCharCode(64 + i);
     r = '<tr><td class="ext">' + c + '</td>';
     for (j = 1; j <= 15; j += 1) {
-      switch (scores.charAt(k)) {
+      switch (BONUS_TABLE.charAt(k)) {
       case " ": cl = "nscore"; break;
       case "W": cl = "twscore"; break;
       case "w": cl = "dwscore"; break;
@@ -371,12 +370,12 @@ addToWordList = function() {
     return;
   h = l % 2 === 0 ? '<span class="player">'
     : '<span class="opponent">';
-  if (ml[l].move_kind === mnormal) {
-    h += iToc(ml[l].tiles[0].field) + " ";
+  if (ml[l].move_kind === MOVE_TYPE.NORMAL) {
+    h += itoc(ml[l].tiles[0].field) + " ";
     h += ml[l].words[0].toUpperCase();
-  } else if (ml[l].move_kind === mpause) {
+  } else if (ml[l].move_kind === MOVE_TYPE.PAUSE) {
     h += "&lt;" + stringMap.word_list_pause + "&gt;";
-  } else if (ml[l].move_kind === mexchange) {
+  } else if (ml[l].move_kind === MOVE_TYPE.EXCHANGE) {
     h += "&lt;" + stringMap.word_list_exchange + "&gt;";
   }
   h += '<br></span>';
@@ -421,7 +420,7 @@ setPoints = function() {
 
 exchangeTiles = function() {
   "use strict";
-  var move = new Move(mexchange),
+  var move = new Move(MOVE_TYPE.EXCHANGE),
       response, i, d;
   for (i = 1; i <= 7; i++) {
     d = $("#idex1" + i).children()[0];
@@ -614,7 +613,7 @@ onClickButtonConfirm = function() {
   $(".atile").each(function() {
     ids.push(this.closest("td").id);
   });
-  move = new Move(mnormal);
+  move = new Move(MOVE_TYPE.NORMAL);
   for (i = 0; i < ids.length; i++) {
     d = $("#" + ids[i] + " > div");
     // $(d).text() === "A1" for letter A
@@ -663,7 +662,7 @@ onClickButtonPause = function() {
   }
   blockInput();
   moveActiveTilesToRack();
-  move = new Move(mpause);
+  move = new Move(MOVE_TYPE.PAUSE);
   response = currentGame.register_player_move(move);
   setPoints();
   addToWordList();
@@ -714,7 +713,7 @@ onClickButtonExchange = function() {
     return;
   }
   blockInput();
-  move = new Move(mexchange);
+  move = new Move(MOVE_TYPE.EXCHANGE);
   response = currentGame.register_player_move(move);
   if (response.hasOwnProperty("error")) {
     infoDialog(response.error);
@@ -735,7 +734,7 @@ onClickButtonResign = function() {
     return;
   }
   blockInput();
-  move = new Move(mresignation);
+  move = new Move(MOVE_TYPE.RESIGNATION);
   response = currentGame.register_player_move(move);
   assert(currentGame.is_finished);
   gameOverInfo();
@@ -831,10 +830,9 @@ getOpponentMove = function() {
   }
 
   function display_opponent_move2(move) {
-    var
-    marked = makeArray(8, false),
-    lp = "",
-    i, j, c, upc, p, d, s;
+    var marked = makeArray(8, false),
+        lp = "",
+        i, j, c, upc, d, s;
 
     // If opponent's rack is not visible, put on it tiles to be laid
     // on the board.
@@ -852,11 +850,9 @@ getOpponentMove = function() {
       c = move[i].letter;
       upc = c.toUpperCase();
       if (move[i].isblank) {
-        p = "";
         lp += "?";
       }
       else {
-        p = getLetterPoints(c);
         lp += upc;
       }
       if (move[i].isblank) {
@@ -873,8 +869,9 @@ getOpponentMove = function() {
             break;
         }
       }
+      // TODO: this assertion failed once.
       assert(1 <= j && j <= 7);
-      d = "#idbdf" + iToc(move[i].field);
+      d = "#idbdf" + itoc(move[i].field);
       animateDivDrop("#idor" + j, d);
       marked[j] = true;
     }

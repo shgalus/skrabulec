@@ -2,47 +2,45 @@ import {assert, nextPermutation, Comblex} from "./utils.js";
 
 export class Bag {
   constructor(letter_map) {
-    var i, j;
     this.b = [];
-    for (i in letter_map)
+    for (let i in letter_map)
       if (letter_map.hasOwnProperty(i))
-        for (j = 0; j < letter_map[i].nitems; j++)
+        for (let j = 0; j < letter_map[i].nitems; j++)
           this.b.push(i);
   }
   shuffle() {
     // Knuth, vol. 2, section 3.4.2, algorithm P.
-    var j, k, t;
-    j = this.b.length;
+    let j = this.b.length;
     while (j > 1) {
-      k = Math.floor(j * Math.random());
-      t = this.b[--j];
+      const k = Math.floor(j * Math.random());
+      let t = this.b[--j];
       this.b[j] = this.b[k];
       this.b[k] = t;
     }
   }
   issue(n) {
-    var i, min, s = String();
+    let min;
     if (n < this.b.length) {
       this.shuffle();
       min = n;
     } else
       min = this.b.length;
-    for (i = 0; i < min; i++)
+    let s = String();
+    for (let i = 0; i < min; i++)
       s += this.b.pop();
     return s;
   }
   must_issue(s) {
-    var i, k;
-    for (i = 0; i < s.length; i++) {
-      k = this.b.indexOf(s.charAt(i));
+    for (let i = 0; i < s.length; i++) {
+      const k = this.b.indexOf(s.charAt(i));
       assert(k !== -1);
       this.b.splice(k, 1);
     }
     return s;
   }
   exchange(s) {
-    var i, t = this.issue(s.length);
-    for (i = 0; i < s.length; i++)
+    const t = this.issue(s.length);
+    for (let i = 0; i < s.length; i++)
       this.b.push(s.charAt(i));
     return t;
   }
@@ -54,15 +52,19 @@ export class Bag {
   }
 }
 
-const asc0 = "0".charCodeAt(0),
-      asca1 = "A".charCodeAt(0) - 1;
-const nrows =       15,
-      ncols =       15,
-      ncols2 =      ncols + 2,
-      center =      144,
-      outer_field = "\u0000", // String.fromCharCode(0)
-      empty_field = " ";
-export const scores = String()
+const NROWS =       15,
+      NCOLS =       15,
+      NCOLS2 =      NCOLS + 2,
+      CENTER =      144,
+      OUTER_FIELD = "\u0000",           // String.fromCharCode(0)
+      EMPTY_FIELD = " ";
+
+// Bonus scores:
+// l - double letter score
+// L - triple letter score
+// w - double word score
+// W - triple word score
+export const BONUS_TABLE = String()
       + "W  l   W   l  W"
       + " w   L   L   w "
       + "  w   l l   w  "
@@ -78,20 +80,22 @@ export const scores = String()
       + "  w   l l   w  "
       + " w   L   L   w "
       + "W  l   W   l  W";
-// Kinds of moves.
-export
-const mnormal =      0,
-      mpause =       1,
-      mexchange =    2,
-      mresignation = 3;
-// Kinds of end of game.
-export
-const eognormal =    0,
-      eogpauses =    1,
-      eogresignation =  2;
+
+export const MOVE_TYPE = Object.freeze({
+  NORMAL: Symbol("NORMAL"),             // player puts tiles
+  PAUSE: Symbol("PAUSE"),               // player pauses
+  EXCHANGE: Symbol("EXCHANGE"),         // player exchanges tiles
+  RESIGNATION: Symbol("RESIGNATION")    // player resigns
+});
+
+export const EOG_TYPE = Object.freeze({ // Reasons for end of game:
+  NORMAL: Symbol("NORMAL"),             // no more tiles
+  PAUSES: Symbol("PAUSES"),             // too many consecutive pauses
+  RESIGNATION: Symbol("RESIGNATION")    // player resigned
+});
 
 //
-// Board for nrows = 3, ncols = 4 (ncols2 = ncols + 2).
+// Board for NROWS = 3, NCOLS = 4 (NCOLS2 = NCOLS + 2).
 //
 //            1    2    3    4
 //    +----+----+----+----+----+----+
@@ -117,67 +121,69 @@ const eognormal =    0,
 //    +----+----+----+----+----+----+
 //            1    2    3    4
 //
-// A1 ... A4:     1 * ncols2 + 1 ...     1 * ncols2 + ncols
-// B1 ... B4:     2 * ncols2 + 1 ...     2 * ncols2 + ncols
-// C1 ... C4: nrows * ncols2 + 1 ... nrows * ncols2 + ncols
+// A1 ... A4:     1 * NCOLS2 + 1 ...     1 * NCOLS2 + NCOLS
+// B1 ... B4:     2 * NCOLS2 + 1 ...     2 * NCOLS2 + NCOLS
+// C1 ... C4: NROWS * NCOLS2 + 1 ... NROWS * NCOLS2 + NCOLS
 //
 
-// Converts integer coordinates to normal coordinates, eg. iToc(144)
+// Constants used in itoc and ctoi
+const ASC0 = "0".charCodeAt(0),
+      ASCA1 = "A".charCodeAt(0) - 1;
+
+// Converts integer coordinates to normal coordinates, eg. itoc(144)
 // === "H8".
-export function iToc(n) {
+export function itoc(n) {
   "use strict";
-  var r, c;
   assert(Number.isInteger(n));
-  assert(n >= ncols2);
-  assert(n < (nrows + 1) * ncols2);
-  c = n % ncols2;
-  assert(c !== 0 && c !== ncols + 1);
-  r = String.fromCharCode(
-    Math.floor(n / ncols2) + asca1);
+  assert(n >= NCOLS2);
+  assert(n < (NROWS + 1) * NCOLS2);
+  const c = n % NCOLS2;
+  assert(c !== 0 && c !== NCOLS + 1);
+  const r = String.fromCharCode(
+    Math.floor(n / NCOLS2) + ASCA1);
   return r +
     (c >= 10 ?
-     String.fromCharCode(asc0 + Math.floor(c / 10))
-     + String.fromCharCode(asc0 + c % 10)
-     : String.fromCharCode(asc0 + c));
+     String.fromCharCode(ASC0 + Math.floor(c / 10))
+     + String.fromCharCode(ASC0 + c % 10)
+     : String.fromCharCode(ASC0 + c));
 }
 
-// Converts normal coordinates to integer coordinates, eg. cToi("H8")
+// Converts normal coordinates to integer coordinates, eg. ctoi("H8")
 // === 144. On error returns undefined.
-export function cToi(s) {
+export function ctoi(s) {
   "use strict";
-  var r, c, d;
   if (typeof s !== "string" ||
       (s.length !== 2 && s.length !== 3))
     return;
-  r = s.charCodeAt(0) - asca1;
-  if (r < 1 || r > nrows)
+  const r = s.charCodeAt(0) - ASCA1;
+  if (r < 1 || r > NROWS)
     return;
-  c = s.charCodeAt(1) - asc0;
+  let c = s.charCodeAt(1) - ASC0;
   if (c < 1 || c > 9)
     return;
   if (s.length === 3) {
-    d = s.charCodeAt(2) - asc0;
+    let d = s.charCodeAt(2) - ASC0;
     if (d < 0 || d > 9)
       return;
     c = 10 * c + d;
   }
-  if (c < 1 || c > ncols)
+  if (c < 1 || c > NCOLS)
     return;
-  return r * ncols2 + c;
+  return r * NCOLS2 + c;
 }
 
 export class Move {
   constructor(kind) {
     this.kind = kind;
-    if (kind === mnormal)
+    if (kind === MOVE_TYPE.NORMAL)
       this.tiles = [];
-    else if (kind === mexchange)
+    else if (kind === MOVE_TYPE.EXCHANGE)
       this.tiles = String();
+    else
+      this.tiles = null;
   }
   add(field, isblank, letter) {
-    this.tiles.push({field: field,
-                     isblank: isblank,
-                     letter: letter});
+    this.tiles.push({field, isblank, letter});
   }
   sort() {
     this.tiles.sort(
@@ -186,8 +192,7 @@ export class Move {
       });
   }
   is_sorted() {
-    var i;
-    for (i = 1; i < this.tiles.length; i++)
+    for (let i = 1; i < this.tiles.length; i++)
       if (this.tiles[i].field <= this.tiles[i - 1].field)
         return false;
     return true;
@@ -214,15 +219,15 @@ export function printBoard(b) {
   "use strict";
   var i, j,
       k = 0,
-      nr2 = nrows + 2,
-      nc2 = ncols2,
+      nr2 = NROWS + 2,
+      nc2 = NCOLS2,
       s = String();
   assert(b.length === 289);
   for (i = 0; i < nr2; i++) {
     for (j = 0; j < nc2; j++) {
-      if (b[k] === outer_field)
+      if (b[k] === OUTER_FIELD)
         s += "#";
-      else if (b[k] === empty_field)
+      else if (b[k] === EMPTY_FIELD)
         s += ".";
       else
         s += b[k];
@@ -255,34 +260,33 @@ export class Engine {
 
   // TODO: this should be static or plain function.
   initBoard() {
-    var
-    nr1 = nrows + 1,
-    nr2 = nrows + 2,
-    nc1 = ncols + 1,
-    nc2 = ncols + 2,
-    n = nr2 * nc2,
-    m = nr1 * nc2,
-    b = [],
-    i, c;
+    var nr1 = NROWS + 1,
+        nr2 = NROWS + 2,
+        nc1 = NCOLS + 1,
+        nc2 = NCOLS + 2,
+        n = nr2 * nc2,
+        m = nr1 * nc2,
+        b = [],
+        i, c;
     for (i = 0; i < n; i++) {
       if (i < nc2 || i >= m)
-        b.push(outer_field);
+        b.push(OUTER_FIELD);
       else {
         c = i % nc2;
         if (c === 0 || c === nc1)
-          b.push(outer_field);
+          b.push(OUTER_FIELD);
         else
-          b.push(empty_field);
+          b.push(EMPTY_FIELD);
       }
     }
     return b;
   }
 
   initScores() {
-    var nr1 = nrows + 1,
-        nr2 = nrows + 2,
-        nc1 = ncols + 1,
-        nc2 = ncols + 2,
+    var nr1 = NROWS + 1,
+        nr2 = NROWS + 2,
+        nc1 = NCOLS + 1,
+        nc2 = NCOLS + 2,
         n = nr2 * nc2,
         m = nr1 * nc2,
         b = [],
@@ -290,13 +294,13 @@ export class Engine {
         i, c;
     for (i = 0; i < n; i++) {
       if (i < nc2 || i >= m)
-        b.push(outer_field);
+        b.push(OUTER_FIELD);
       else {
         c = i % nc2;
         if (c === 0 || c === nc1)
-          b.push(outer_field);
+          b.push(OUTER_FIELD);
         else
-          b.push(scores.charAt(k++));
+          b.push(BONUS_TABLE.charAt(k++));
       }
     }
     return b;
@@ -376,10 +380,9 @@ export class Engine {
   //
   // TODO: https://stackoverflow.com/questions/19676109.
   arrange_letters(letters) {
-    var
-    n = letters.length,
-    low = [],
-    c, a, i, k, s;
+    var n = letters.length,
+        low = [],
+        c, a, i, k, s;
 
     for (k = n; k >= 2; k--) {
       c = new Comblex(n, k);
@@ -419,11 +422,11 @@ export class Engine {
       var m = move[0];
       mw = m.isblank ? m.letter : m.letter.toUpperCase();
       f = m.field;
-      while (board[f - d] > empty_field)
+      while (board[f - d] > EMPTY_FIELD)
         mw = "(" + board[f -= d].toUpperCase() + ")" + mw;
       ff = f;
       f = m.field;
-      while (board[f + d] > empty_field)
+      while (board[f + d] > EMPTY_FIELD)
         mw += "(" + board[f += d].toUpperCase() + ")";
     }
 
@@ -431,20 +434,20 @@ export class Engine {
     if (mll === 1) {
       one_tile(1);
       if (mw.length >= 2) {
-        mw += " " + iToc(ff);
+        mw += " " + itoc(ff);
         return mw;
       }
-      one_tile(ncols2);
+      one_tile(NCOLS2);
       assert(mw.length >= 2);
-      ff = iToc(ff);
+      ff = itoc(ff);
       ff = ff.substr(1) + ff.substr(0, 1);
       mw += " " + ff;
       return mw;
     }
-    d = move[1].field - move[0].field < ncols2 ?
-      1 : ncols2;
+    d = move[1].field - move[0].field < NCOLS2 ?
+      1 : NCOLS2;
     f = move[0].field;
-    while (board[f - d] > empty_field)
+    while (board[f - d] > EMPTY_FIELD)
       mw = "(" + board[f -= d].toUpperCase() + ")" + mw;
     ff = f;
     f = move[mll - 1].field;
@@ -459,9 +462,9 @@ export class Engine {
       else
         mw += "(" + board[k].toUpperCase() + ")";
     }
-    while (board[f + d] > empty_field)
+    while (board[f + d] > EMPTY_FIELD)
       mw += "(" + board[f += d].toUpperCase() + ")";
-    ff = iToc(ff);
+    ff = itoc(ff);
     if (d !== 1)
       ff = ff.substr(1) + ff.substr(0, 1);
     mw += " " + ff;
@@ -475,40 +478,40 @@ export class Engine {
       return this.string_map.set_some_tiles;
     if (l === 1) {
       f = move[0].field;
-      if (board[f] !== empty_field)
+      if (board[f] !== EMPTY_FIELD)
         return this.string_map.move_error; // tile put on another tile
-      if (board[f + 1] > empty_field ||
-          board[f + ncols2] > empty_field ||
-          board[f - 1] > empty_field ||
-          board[f - ncols2] > empty_field)
+      if (board[f + 1] > EMPTY_FIELD ||
+          board[f + NCOLS2] > EMPTY_FIELD ||
+          board[f - 1] > EMPTY_FIELD ||
+          board[f - NCOLS2] > EMPTY_FIELD)
         return "";
       for (i = 0; i < board.length; i++)
-        if (board[i] > empty_field)
+        if (board[i] > EMPTY_FIELD)
           // a tile must be adjacent
           return this.string_map.must_be_cont;
       return this.string_map.first_move;
     }
-    h = move[1].field - move[0].field < ncols2;
+    h = move[1].field - move[0].field < NCOLS2;
     f1 = move[0].field;
-    if (board[f1] !== empty_field)
+    if (board[f1] !== EMPTY_FIELD)
       return this.string_map.move_error; // tile put on another tile
     if (h) {
       d = 1;
-      k = Math.floor(f1 / ncols2);
+      k = Math.floor(f1 / NCOLS2);
       for (i = 1; i < l; i++) {
         f = move[i].field;
         if (f <= f1 ||
-            Math.floor(f / ncols2) !== k ||
-            board[f] !== empty_field)
+            Math.floor(f / NCOLS2) !== k ||
+            board[f] !== EMPTY_FIELD)
           return this.string_map.vert_or_horiz_cont;
         f1 = f;
       }
     } else {
-      d = ncols2;
-      k = f1 % ncols2;
+      d = NCOLS2;
+      k = f1 % NCOLS2;
       for (i = 1; i < l; i++) {
         f = move[i].field;
-        if (f <= f1 || f % ncols2 !== k || board[f] !== empty_field)
+        if (f <= f1 || f % NCOLS2 !== k || board[f] !== EMPTY_FIELD)
           return this.string_map.vert_or_horiz_cont;
         f1 = f;
       }
@@ -516,25 +519,25 @@ export class Engine {
     assert(f1 === move[l - 1].field);
     i = 0;
     for (k = move[0].field; k <= f1; k += d)
-      if (board[k] === empty_field)
+      if (board[k] === EMPTY_FIELD)
         if (i >= l || move[i++].field !== k)
           return this.string_map.vert_or_horiz_cont;
     assert(i === l);
     // Check if a tile is adjacent to a tile on the board.
     for (i = 0; i < l; i++) {
       f = move[i].field;
-      if (board[f + 1] > empty_field ||
-          board[f + ncols2] > empty_field ||
-          board[f - 1] > empty_field ||
-          board[f - ncols2] > empty_field) {
+      if (board[f + 1] > EMPTY_FIELD ||
+          board[f + NCOLS2] > EMPTY_FIELD ||
+          board[f - 1] > EMPTY_FIELD ||
+          board[f - NCOLS2] > EMPTY_FIELD) {
         return "";
       }
     }
     for (i = 0; i < board.length; i++)
-      if (board[i] > empty_field)
+      if (board[i] > EMPTY_FIELD)
         return this.string_map.must_be_cont; // must be adjacent
     for (i = 0; i < l; i++)
-      if (move[i].field === center)
+      if (move[i].field === CENTER)
         return "";
     return this.string_map.first_move;
   }
@@ -549,10 +552,10 @@ export class Engine {
     function check_word() {
       f = move[i].field;
       w = move[i].letter;
-      while (board[f - d] > empty_field)
+      while (board[f - d] > EMPTY_FIELD)
         w = board[f -= d] + w;
       f = move[i].field;
-      while (board[f + d] > empty_field)
+      while (board[f + d] > EMPTY_FIELD)
         w += board[f += d];
       if (w.length > 1) {
         if (that.wordInDict(w))
@@ -567,29 +570,29 @@ export class Engine {
       i = 0;
       d = 1;
       check_word();
-      d = ncols2;
+      d = NCOLS2;
       check_word();
       return {
         words: words,
         errors: err
       };
     }
-    h = move[1].field - move[0].field < ncols2;
-    d = h ? 1 : ncols2;
+    h = move[1].field - move[0].field < NCOLS2;
+    d = h ? 1 : NCOLS2;
     // Check main word.
     w = String();
     f = move[0].field;
-    while (board[f - d] > empty_field)
+    while (board[f - d] > EMPTY_FIELD)
       w = board[f -= d] + w;
     f = move[l - 1].field;
     i = 0;
     for (k = move[0].field; k <= f; k += d) {
-      if (board[k] === empty_field)
+      if (board[k] === EMPTY_FIELD)
         w += move[i++].letter;
       else
         w += board[k];
     }
-    while (board[f + d] > empty_field)
+    while (board[f + d] > EMPTY_FIELD)
       w += board[f += d];
     if (this.wordInDict(w))
       words.push(w);
@@ -597,7 +600,7 @@ export class Engine {
       err.push(w);
     // Check each cross word.
     h = !h;
-    d = h ? 1 : ncols2;
+    d = h ? 1 : NCOLS2;
     for (i = 0; i < move.length; i++)
       check_word();
     return {
@@ -611,9 +614,9 @@ export class Engine {
   // the form:
   //
   // [
-  //  {field: cToi("H7"), isblank: false, letter: "b"},
-  //  {field: cToi("H8"), isblank: true,  letter: "o"},
-  //  {field: cToi("H9"), isblank: false, letter: "y"}
+  //  {field: ctoi("H7"), isblank: false, letter: "b"},
+  //  {field: ctoi("H8"), isblank: true,  letter: "o"},
+  //  {field: ctoi("H9"), isblank: false, letter: "y"}
   // ]
   //
   // but the fields may not be sorted.
@@ -627,10 +630,10 @@ export class Engine {
       for (i = 0; i < move.length; i++) {
         f = move[i].field;
         np = 0;
-        while (board[f - d] > empty_field)
+        while (board[f - d] > EMPTY_FIELD)
           np += that.letterMap[board[f -= d]].npoints;
         f = move[i].field;
-        while (board[f + d] > empty_field)
+        while (board[f + d] > EMPTY_FIELD)
           np += that.letterMap[board[f += d]].npoints;
         if (np === 0)
           continue;
@@ -658,12 +661,12 @@ export class Engine {
     if (move.length === 1) {
       d = 1;
       calculate_word();
-      d = ncols2;
+      d = NCOLS2;
       calculate_word();
       return npoints;
     }
-    horiz = move[1].field - move[0].field < ncols2;
-    d = horiz ? 1 : ncols2;
+    horiz = move[1].field - move[0].field < NCOLS2;
+    d = horiz ? 1 : NCOLS2;
     // Calculate points for the main word.
     np = 0;
     ndoublew = 0;
@@ -683,13 +686,13 @@ export class Engine {
       np += p;
     }
     f = move[0].field;
-    while (board[f - d] > empty_field)
+    while (board[f - d] > EMPTY_FIELD)
       np += this.letterMap[board[f -= d]].npoints;
     f = move[move.length - 1].field;
-    while (board[f + d] > empty_field)
+    while (board[f + d] > EMPTY_FIELD)
       np += this.letterMap[board[f += d]].npoints;
     for (f = move[0].field; f < move[move.length - 1].field; f += d)
-      if (board[f] > empty_field)
+      if (board[f] > EMPTY_FIELD)
         np += this.letterMap[board[f]].npoints;
     while (ndoublew-- > 0)
       np *= 2;
@@ -698,7 +701,7 @@ export class Engine {
     npoints = np;
     // Calculate points for each cross word.
     horiz = !horiz;
-    d = horiz ? 1 : ncols2;
+    d = horiz ? 1 : NCOLS2;
     calculate_word();
     if (move.length === 7)
       npoints += 50;
@@ -710,10 +713,9 @@ export class Engine {
 
     // Check if all tiles used in the move are on the rack.
     function check_rack() {
-      var s = rack, i, k, c;
+      var s = rack, i, c;
       for (i = 0; i < move.length; i++) {
         c = move[i].isblank ? "?" : move[i].letter;
-        k = s.indexOf(c);
         assert(s.indexOf(c) >= 0);
         s = s.replace(c, "");
       }
@@ -734,7 +736,7 @@ export class Engine {
         (++i === cw.errors.length ? "." : ", ");
       return w;
     }
-    state = new State(rack, mnormal);
+    state = new State(rack, MOVE_TYPE.NORMAL);
     state.tiles = move;
     state.words = cw.words;
     state.board = board.slice(0);
@@ -778,7 +780,7 @@ export class Engine {
   board_empty(board) {
     var i;
     for (i = 0; i < board.length; i++)
-      if (board[i] > empty_field)
+      if (board[i] > EMPTY_FIELD)
         return false;
     return true;
   }
@@ -794,7 +796,7 @@ export class Engine {
     var i, low, state, mv, cw, k, np, maxp;
     low = this.arrange_letters(rack);
     if (low.length === 0) {
-      state = new State(rack, mpause);
+      state = new State(rack, MOVE_TYPE.PAUSE);
       state.board = board.slice(0);
       return state;
     }
@@ -808,13 +810,13 @@ export class Engine {
       }
     }
     assert(k >= 0);
-    mv = new Move(mnormal);
+    mv = new Move(MOVE_TYPE.NORMAL);
     for (i = 0; i < low[k].length; i++)
-      mv.add(center + i, false, low[k].charAt(i));
+      mv.add(CENTER + i, false, low[k].charAt(i));
     assert(this.checkMove(board, mv.tiles) === "");
     cw = this.checkWords(board, mv.tiles);
     assert(cw.errors.length === 0);
-    state = new State(rack, mnormal);
+    state = new State(rack, MOVE_TYPE.NORMAL);
     state.tiles = mv.tiles;
     state.words = cw.words;
     state.board = board.slice(0);
@@ -840,18 +842,18 @@ export class Engine {
         k;
 
     // Generates cross-checks for empty field on the board. For d =
-    // ncols2 generates horizontal cross-checks, for d = 1 generates
+    // NCOLS2 generates horizontal cross-checks, for d = 1 generates
     // vertical cross-checks.
     function generate(d) {
       var t = [],
           prefix, suffix, node0, i;
       prefix = "";
       i = k;
-      while (board[i - d] > empty_field)
+      while (board[i - d] > EMPTY_FIELD)
         prefix = board[i -= d] + prefix;
       suffix = "";
       i = k;
-      while (board[i + d] > empty_field)
+      while (board[i + d] > EMPTY_FIELD)
         suffix += board[i += d];
       if (prefix.length === 0 && suffix.length === 0)
         t = that.alphabet.slice();
@@ -866,12 +868,12 @@ export class Engine {
     }
 
     for (k = 0; k < board.length; k++) {
-      if (board[k] === outer_field || board[k] > empty_field) {
+      if (board[k] === OUTER_FIELD || board[k] > EMPTY_FIELD) {
         hc.push([]);
         vc.push([]);
         continue;
       }
-      hc.push(generate(ncols2));
+      hc.push(generate(NCOLS2));
       vc.push(generate(1));
     }
     return {
@@ -885,7 +887,7 @@ export class Engine {
   // field - start field,
   // word - word to arrange
   // letters - letters remaining on rack
-  // d - direction (1 = horizontal, prototype.ncols2 = vertical)
+  // d - direction (1 = horizontal, prototype.NCOLS2 = vertical)
   // tab - a table to collect moves
   legal_move(board, rack, field, word, letters, d, tab) {
     var i, c, f, m,
@@ -903,13 +905,13 @@ export class Engine {
     }
     assert(u.length + letters.length === rack.length);
     f = field;
-    m = new Move(mnormal);
+    m = new Move(MOVE_TYPE.NORMAL);
     for (i = 0; i < word.length; i++) {
       c = word.charAt(i);
-      if (board[f] > empty_field)
+      if (board[f] > EMPTY_FIELD)
         assert(board[f] === c);
       else {
-        assert(board[f] === empty_field);
+        assert(board[f] === EMPTY_FIELD);
         assert(u.indexOf(c) >= 0);
         u = u.replace(c, "");
         m.add(f, false, c);
@@ -937,12 +939,12 @@ export class Engine {
         tab = []; // to collect moves
 
     function isanchor(k) {
-      if (board[k] !== empty_field)
+      if (board[k] !== EMPTY_FIELD)
         return false;
-      return board[k - 1] > empty_field ||
-        board[k + 1] > empty_field ||
-        board[k - ncols2] > empty_field ||
-        board[k + ncols2] > empty_field;
+      return board[k - 1] > EMPTY_FIELD ||
+        board[k + 1] > EMPTY_FIELD ||
+        board[k - NCOLS2] > EMPTY_FIELD ||
+        board[k + NCOLS2] > EMPTY_FIELD;
     }
 
     function LeftPart(PartialWord, N, limit) {
@@ -973,7 +975,7 @@ export class Engine {
 
     function ExtendRight(PartialWord, N, field) {
       var letter;
-      if (board[field] === empty_field) {
+      if (board[field] === EMPTY_FIELD) {
         if (field !== AnchorField)
           if (N[0])
             that.legal_move(board, rack0, sf, PartialWord,
@@ -988,7 +990,7 @@ export class Engine {
             rack += letter;
           }
         }
-      } else if (board[field] > empty_field) {
+      } else if (board[field] > EMPTY_FIELD) {
         letter = board[field];
         if (N[letter] !== undefined)
           ExtendRight(PartialWord + letter,
@@ -1004,7 +1006,7 @@ export class Engine {
           lim = 0,
           node;
       sf = k; // === AnchorField
-      while (board[i - d] > empty_field) {
+      while (board[i - d] > EMPTY_FIELD) {
         PartialWord = board[i -= d] + PartialWord;
         sf -= d;
       }
@@ -1013,7 +1015,7 @@ export class Engine {
           if (l1 === 0)
             break;
           i -= d;
-          if (board[i] === outer_field)
+          if (board[i] === OUTER_FIELD)
             break;
           if (isanchor(i))
             break;
@@ -1034,7 +1036,7 @@ export class Engine {
       d = 1;
       if (hc[AnchorField].length > 0)
         generate(AnchorField);
-      d = ncols2;
+      d = NCOLS2;
       if (vc[AnchorField].length > 0)
         generate(AnchorField);
     }
@@ -1054,11 +1056,11 @@ export class Engine {
 
     // console.log("" + tab.length + " moves found.");
     if (tab.length === 0) {
-      state = new State(rack, mpause);
+      state = new State(rack, MOVE_TYPE.PAUSE);
       state.board = board.slice(0);
       return state;
     }
-    state = new State(rack, mnormal);
+    state = new State(rack, MOVE_TYPE.NORMAL);
     state.tiles = tab[0][2];
     state.words = tab[0][3];
     state.board = board.slice(0);

@@ -1,5 +1,5 @@
 import {assert, nextPermutation, Comblex} from "./utils.js";
-import {Bag, Engine, cToi, printBoard} from "./engine.js";
+import {Bag, Engine, ctoi, printBoard} from "./engine.js";
 import {configMap as config_map_pl} from "./confpl.js";
 
 var assertArrEq, testMoveGen, generateRecord, testEngine,
@@ -120,15 +120,15 @@ testMoveGen = function() {
       board, rack, state;
 
   board = engine.initBoard();
-  board[cToi("F8")] = "m";
-  board[cToi("G8")] = "a";
-  board[cToi("H8")] = "t";
-  board[cToi("I8")] = "k";
-  board[cToi("J8")] = "a";
-  board[cToi("H6")] = "k";
-  board[cToi("H7")] = "i";
-  board[cToi("H9")] = "k";
-  board[cToi("H10")] = "a";
+  board[ctoi("F8")] = "m";
+  board[ctoi("G8")] = "a";
+  board[ctoi("H8")] = "t";
+  board[ctoi("I8")] = "k";
+  board[ctoi("J8")] = "a";
+  board[ctoi("H6")] = "k";
+  board[ctoi("H7")] = "i";
+  board[ctoi("H9")] = "k";
+  board[ctoi("H10")] = "a";
   console.log(printBoard(board));
   rack = "kółkorf";
   console.log("Rack: " + rack);
