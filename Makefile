@@ -72,6 +72,7 @@ uninstall:
 
 lint:
 	jshint $(SRCS_JS)
+	eslint $(SRCS_JS)
 
 clean:
 	rm -rf $(BUILDDIR)
