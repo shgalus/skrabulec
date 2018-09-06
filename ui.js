@@ -105,38 +105,42 @@ tileDiv = function(c) {
 
 startGame = function(container, conf, dict) {
   "use strict";
-  var i, j, k, html, h, r, hcoord, c, cl, letters, dlgbuttons;
+  var i, j, k, html, h, r, hcoord, c, cl, dlgbuttons;
 
   stringMap = conf.string_map;
   letterMap = conf.letter_map;
   currentGame = new Game(conf, dict);
   uiEngine = currentGame.engine;
 
-  html = '<div id="idleftpanel">';
-  html += '<table id="idgame" class="game"><tbody>';
+  html = `<div id="idleftpanel">
+<table id="idgame" class="game">
+<tbody>`;
 
   // Opponent's rack.
-  h = '<table id="idopprack" class="rack"><tbody><tr>';
-  for (i = 1; i <= configMap.rack_size; i +=1) {
-    h += '<td id="idor' + i + '"></td>';
-  }
-  h += '</tr></tbody></table>';
-  html += '<tr><td>' + h + '</td></tr>';
+  h = `<table id="idopprack" class="rack">
+<tbody>
+<tr>`;
+  for (i = 1; i <= configMap.rack_size; i++)
+    h += `<td id="idor${i}"></td>`;
+  h += `</tr>
+</tbody>
+</table>`;
+  html += '<tr><td>' + h + '</td></tr>\n';
 
   // Board.
-  h = '<table id="idboard" class="board"><tbody>';
-  hcoord = '<tr><td class="ext"></td>';
-  for (i = 1; i <= 15; i += 1) {
-    hcoord += '<td class="ext">' + i + '</td>';
-  }
-  hcoord += '<td class="ext"></td></tr>';
+  h = `<table id="idboard" class="board">
+<tbody>`;
+  hcoord = '<tr><td class="ext"></td>\n';
+  for (i = 1; i <= 15; i++)
+    hcoord += `<td class="ext">${i}</td>`;
+  hcoord += '<td class="ext"></td></tr>\n';
   h += hcoord;
 
   k = 0;
-  for (i = 1; i <= 15; i += 1) {
+  for (i = 1; i <= 15; i++) {
     c = String.fromCharCode(64 + i);
-    r = '<tr><td class="ext">' + c + '</td>';
-    for (j = 1; j <= 15; j += 1) {
+    r = `<tr><td class="ext">${c}</td>`;
+    for (j = 1; j <= 15; j++) {
       switch (BONUS_TABLE.charAt(k)) {
       case " ": cl = "nscore"; break;
       case "W": cl = "twscore"; break;
@@ -145,70 +149,69 @@ startGame = function(container, conf, dict) {
       case "l": cl = "dlscore"; break;
       default:  assert(false);
       }
-      k += 1;
-      r += '<td id="idbdf' +
-        String.fromCharCode(64 + i) + j +
-        '" class = "int ' + cl + '"></td>';
+      k++;
+      r += `<td id="idbdf${c}${j}" class = "int ${cl}"></td>`;
     }
-    r += '<td class="ext">' + c + '</td></tr>';
+    r += `<td class="ext">${c}</td></tr>`;
     h += r;
   }
   h += hcoord;
-  h += '</tbody></table>';
+  h += `</tbody>
+</table>`;
   html += '<tr><td>' + h + '</td></tr>';
 
   // Player's rack.
   h = '<table id="idplrrack" class="rack"><tbody><tr>';
-  for (i = 1; i <= configMap.rack_size; i +=1) {
-    h += '<td id="idpr' + i + '"></td>';
-  }
+  for (i = 1; i <= configMap.rack_size; i +=1)
+    h += `<td id="idpr${i}"></td>`;
   h += '</tr></tbody></table>';
   html += '<tr><td>' + h + '</td></tr>';
 
   // Buttons.
-  h = '<table class="buttons"><tbody><tr>';
-  r = '<td><button id="';
-  c = '" type="button" class="pbutton">';
-  h += r + 'idbutconfirm' + c + stringMap.confirm_btn +
-    '</button></td>';
-  h += r + 'idbutclear' + c + stringMap.clear_btn +
-    '</button></td>';
-  h += r + 'idbutpause' + c + stringMap.pause_btn +
-    '</button></td>';
-  h += r + 'idbutexchange' + c + stringMap.exchange_btn +
-    '</button></td>';
-  h += r + 'idbutresign' + c + stringMap.resign_btn +
-    '</button></td>';
-  h += '</tr></tbody></table>';
-  html += '<tr><td>' + h + '</td></tr>';
-  html += '</tbody></table>';
+  {
+    let h = '<table class="buttons"><tbody><tr>';
+    const r = '<td><button id="';
+    const c = '" type="button" class="pbutton">';
+    const e = '</button></td>';
+    h += `${r}idbutconfirm${c}${stringMap.confirm_btn}${e}`;
+    h += `${r}idbutclear${c}${stringMap.clear_btn}${e}`;
+    h += `${r}idbutpause${c}${stringMap.pause_btn}${e}`;
+    h += `${r}idbutexchange${c}${stringMap.exchange_btn}${e}`;
+    h += `${r}idbutresign${c}${stringMap.resign_btn}${e}`;
+    h += "</tr></tbody></table>";
+    html += `<tr><td>${h}</td></tr>`;
+    html += '</tbody></table>';
+  }
 
   // Dialog.
-  html += '<div id="iddialog" title="' + stringMap.dialog_title +
-    '">' + '<div id="iddialogtext"></div></div>';
+  html += `<div id="iddialog" title="${stringMap.dialog_title}">
+<div id="iddialogtext"></div></div>`;
 
   // Dialog for replacing a blank tile.
-  h = '<div id="idblrepldiv" title="' + stringMap.repl_blank_title +
-    '">' + '<p>' + stringMap.repl_blank_tile_command + '</p>' +
-    '<table id="idblrepltab" class="mydlotable">' +
-    '<tbody>';
-  letters = Object.keys(letterMap);
-  j = 0;
-  for (k = 0; k < letters.length; k++)
-    if (letters[k] !== '?') {
-      if (j === 0)
-        h += '<tr>';
-      h += '<td><div class="tile ntile">' +
-        letters[k].toUpperCase() + '</div></td>';
-      if (++j === 8) {
-        h += '</tr>';
-        j = 0;
+  {
+    const rbp = stringMap.repl_blank_title;
+    let h = `<div id="idblrepldiv" title="${rbp}">
+<p>${stringMap.repl_blank_tile_command}</p>
+<table id="idblrepltab" class="mydlotable">
+<tbody>`;
+    const letters = Object.keys(letterMap);
+    let j = 0;
+    for (let k = 0; k < letters.length; k++)
+      if (letters[k] !== '?') {
+        const u = letters[k].toUpperCase();
+        if (j === 0)
+          h += "<tr>";
+        h += `<td><div class="tile ntile">${u}</div></td>`;
+        if (++j === 8) {
+          h += "</tr>";
+          j = 0;
+        }
       }
-    }
-  if (j > 0)
-    h += '</tr>';
-  h += '</tbody></table></div>';
-  html += h;
+    if (j > 0)
+      h += "</tr>";
+    h += "</tbody></table></div>";
+    html += h;
+  }
 
   // Dialog for exchanging tiles.
   h = '<div id="idexchg" title="' + stringMap.exchange_tiles_title +
@@ -268,6 +271,7 @@ startGame = function(container, conf, dict) {
   h += '</div></div></body></html>';
   html += h;
 
+  console.log(html);
   container.append(html);
   markDroppable();
   $("body").on("selectstart", function() {
